@@ -1,20 +1,66 @@
 import pandas as pd
+import numpy as np
 
 # Step 1: Read the spreadsheet into a DataFrame
-df = pd.read_excel('input.xlsx')  # replace with the path to your Excel file
+df = pd.read_excel('12-month-statement.xlsx')
 
-# Step 2: Convert the date column from strings to datetime objects
-df['Date'] = pd.to_datetime(df['Date'], format='%b %Y')  # replace 'Date' with your date column name
+dates = []
+NRE_data = []
+RE_data = []
 
-# Step 3: Filter rows based on their "Recoverable Expenses" and "Nonrecoverable expenses" column values
-recoverable_expenses = df[df['Category'] == 'Recoverable Expenses']  # replace 'Category' with your column name
-nonrecoverable_expenses = df[df['Category'] == 'Nonrecoverable expenses']
+# Initialize target_column to None
+target_column = None
 
-# Step 4: Perform manipulations on the filtered data
-# This is just an example, replace with your actual manipulations
-recoverable_expenses['Total'] = recoverable_expenses.sum(axis=1)
-nonrecoverable_expenses['Total'] = nonrecoverable_expenses.sum(axis=1)
+# Find the column that contains "51110-50" or "61110-50"
+for col in df.columns:
+    if '51110-50' in df[col].values or '61110-50' in df[col].values:
+        target_column = col
+        break
 
-# Step 5: Write the manipulated data to a new spreadsheet
-recoverable_expenses.to_excel('recoverable_expenses.xlsx', index=False)
-nonrecoverable_expenses.to_excel('nonrecoverable_expenses.xlsx', index=False)
+# Check if target_column is still None (i.e., the codes were not found)
+if target_column is None:
+    print("Could not find a column with '51110-50' or '61110-50'.")
+else:
+    # Find the rows with the codes "51110-50" and "61110-50"
+    NRE_row = df[df[target_column] == '51110-50']
+    RE_row = df[df[target_column] == '61110-50']
+
+    # Check the number of rows found
+    if NRE_row.empty or RE_row.empty:
+        print("Could not find the rows with '51110-50' and/or '61110-50'.")
+    else:
+        # Iterate over each column
+        for col in df.columns:
+            # Iterate over each row in the column
+            for i, cell in enumerate(df[col]):
+                try:
+                    # Try to convert the cell to a datetime
+                    date = pd.to_datetime(cell, format='%b %Y', errors='coerce')
+
+                    # If the conversion was successful (i.e., the cell was a date),
+                    # store the original string and break the loop to move to the next column
+                    if pd.notnull(date):
+                        dates.append(cell)
+
+                        # Store the data in the corresponding rows
+                        NRE_data.append(NRE_row.iat[0, df.columns.get_loc(col)])
+                        RE_data.append(RE_row.iat[0, df.columns.get_loc(col)])
+                        break
+                except ValueError:
+                    # If the cell couldn't be converted to a date, continue to the next cell
+                    continue
+
+# Convert the lists to numpy arrays for element-wise addition
+NRE_data_np = np.array(NRE_data)
+RE_data_np = np.array(RE_data)
+
+# Create a DataFrame with the collected data
+output_df = pd.DataFrame({
+    'Date': dates,
+    'NRE - Cleaning-Supplies & Materials': NRE_data,
+    'RE - Cleaning-Supplies & Materials': RE_data,
+    'Total': NRE_data_np + RE_data_np  # element-wise addition
+})
+
+# Print the output DataFrame
+print(output_df)
