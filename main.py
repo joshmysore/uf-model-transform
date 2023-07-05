@@ -75,10 +75,31 @@ for col in df.columns:
 # Create a DataFrame with the collected dates as rows and the columns from codes
 output_df = pd.DataFrame(data_dict).T
 
-# Rename the columns with the final column names
+# Rename the columns to the final names
 output_df.columns = col_final
 
 # delete all columns that do not have only have a header and then no data
 output_df = output_df.dropna(axis=1, how='all')
 
-print(output_df)
+# create a column called OpEx - Payroll that does the following calculation: 
+    # the sum of the following columns: 51110-10: RE - Cleaning-Payroll,
+    #       61110-10: NRE - Cleaning-Payroll,
+    #       51110-15: RE - Cleaning-Contract Service,
+    #       61110-15: NRE - Cleaning-Contract Service,
+    #       62110-10: NRE - R&M-Payroll-Salaries,
+    #       62140-10: NRE - R&M-Payroll-Outside Contract,
+    #       65110-10: NRE - Administrative-Payroll-Salaries,
+    #       65140-10: NRE - Administrative-Payroll-Outside Contract,
+    #       55330-10: RE - Other Professional Fees
+    #       65330-10: NRE - Other Professional Fees) divided by 35,510 rounded to the nearest whole number
+output_df['OpEx - Payroll'] = output_df['51110-10: RE - Cleaning-Payroll'] + output_df['61110-10: NRE - Cleaning-Payroll'] + output_df['51110-15: RE - Cleaning-Contract Service'] + output_df['61110-15: NRE - Cleaning-Contract Service'] + output_df['62110-10: NRE - R&M-Payroll-Salaries'] + output_df['62140-10: NRE - R&M-Payroll-Outside Contract'] + output_df['65110-10: NRE - Administrative-Payroll-Salaries'] + output_df['65140-10: NRE - Administrative-Payroll-Outside Contract'] + output_df['55330-10: RE - Other Professional Fees'] + output_df['65330-10: NRE - Other Professional Fees']
+output_df['OpEx - Payroll'] = output_df['OpEx - Payroll'] / 35510 
+output_df['OpEx - Payroll'] = output_df['OpEx - Payroll'].round(0)
+
+# place the column OpEx - Maintenance in the first column position
+cols = output_df.columns.tolist()
+cols.insert(0, cols.pop(cols.index('OpEx - Payroll')))
+output_df = output_df.reindex(columns=cols)
+
+# output the dataframe to a new excel file
+output_df.to_excel('output.xlsx')
