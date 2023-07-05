@@ -96,6 +96,8 @@ output_df['OpEx - Payroll'] = output_df['51110-10: RE - Cleaning-Payroll'] + out
 output_df['OpEx - Payroll'] = output_df['OpEx - Payroll'] / 35510 
 output_df['OpEx - Payroll'] = output_df['OpEx - Payroll'].round(0)
 
+output_df['OpEx - Marketing'] = output_df['68220-10: NRE - Advertising & Promo']
+
 # place the column OpEx - Maintenance in the first column position
 cols = output_df.columns.tolist()
 cols.insert(0, cols.pop(cols.index('OpEx - Payroll')))
