@@ -1,3 +1,4 @@
+import re
 import pandas as pd
 import openpyxl
 
@@ -81,27 +82,91 @@ output_df.columns = col_final
 # delete all columns that do not have only have a header and then no data
 output_df = output_df.dropna(axis=1, how='all')
 
-# create a column called OpEx - Payroll that does the following calculation: 
-    # the sum of the following columns: 51110-10: RE - Cleaning-Payroll,
-    #       61110-10: NRE - Cleaning-Payroll,
-    #       51110-15: RE - Cleaning-Contract Service,
-    #       61110-15: NRE - Cleaning-Contract Service,
-    #       62110-10: NRE - R&M-Payroll-Salaries,
-    #       62140-10: NRE - R&M-Payroll-Outside Contract,
-    #       65110-10: NRE - Administrative-Payroll-Salaries,
-    #       65140-10: NRE - Administrative-Payroll-Outside Contract,
-    #       55330-10: RE - Other Professional Fees
-    #       65330-10: NRE - Other Professional Fees) divided by 35,510 rounded to the nearest whole number
-output_df['OpEx - Payroll'] = output_df['51110-10: RE - Cleaning-Payroll'] + output_df['61110-10: NRE - Cleaning-Payroll'] + output_df['51110-15: RE - Cleaning-Contract Service'] + output_df['61110-15: NRE - Cleaning-Contract Service'] + output_df['62110-10: NRE - R&M-Payroll-Salaries'] + output_df['62140-10: NRE - R&M-Payroll-Outside Contract'] + output_df['65110-10: NRE - Administrative-Payroll-Salaries'] + output_df['65140-10: NRE - Administrative-Payroll-Outside Contract'] + output_df['55330-10: RE - Other Professional Fees'] + output_df['65330-10: NRE - Other Professional Fees']
-output_df['OpEx - Payroll'] = output_df['OpEx - Payroll'] / 35510 
-output_df['OpEx - Payroll'] = output_df['OpEx - Payroll'].round(0)
+# delete all columns with the word "total" in the name
+output_df = output_df[output_df.columns.drop(list(output_df.filter(regex='Total')))]
 
-output_df['OpEx - Marketing'] = output_df['68220-10: NRE - Advertising & Promo']
+# Create a list of tuples where each tuple is (original_column_name, code)
+column_tuples = [(col, col.split(':')[0]) for col in output_df.columns.tolist()]
 
-# place the column OpEx - Maintenance in the first column position
-cols = output_df.columns.tolist()
-cols.insert(0, cols.pop(cols.index('OpEx - Payroll')))
-output_df = output_df.reindex(columns=cols)
+# Sort this list based on the code (while ignoring the first digit)
+column_tuples.sort(key=lambda x: int(x[1].split('-')[0][1:] + x[1].split('-')[1]))
 
-# output the dataframe to a new excel file
+# Extract the sorted list of original column names
+sorted_columns = [col[0] for col in column_tuples]
+
+# Rearrange the columns in the dataframe
+output_df = output_df[sorted_columns]
+
+def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=None, position=None):
+    cols_to_sum = [col for col in df.columns if any(code in col for code in codes)]
+
+    df[new_col_name] = df[cols_to_sum].sum(axis=1)
+
+    if divisors is not None:
+        for i, divisor in enumerate(divisors):
+            df.loc[df.index[i], new_col_name] = df.loc[df.index[i], new_col_name] / divisor
+
+    if rounding is not None:
+        df[new_col_name] = df[new_col_name].round(rounding)
+
+    if position is not None:
+        cols = df.columns.tolist()
+        cols.insert(position, cols.pop(cols.index(new_col_name)))
+        df = df.reindex(columns=cols)
+
+    return df
+
+# create variable for column position of 0
+new_position = 0
+
+# create list of divisors
+divisors = [33087, 33417, 33837, 34258, 34600, 34812, 35111, 35288, 35510, 35575, 35839, 36033]
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='OpEx - Payroll',
+    codes=['1110-10',
+           '1110-15',
+           '2110-10',
+           '2140-10',
+           '5110-10',
+           '5140-10',
+           '5330-10'],
+    divisors=divisors,
+    rounding=0,
+    position=new_position
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='OpEx - Marketing',
+    codes=['8220-10',
+           '8330-10'],
+    divisors=divisors,
+    rounding=0,
+    position=new_position + 1
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='OpEx - Repairs & Maintenance',
+    codes=['2210-20',
+           '2610-40',
+           '2710-20',
+           '2710-20',
+           '2710-40',
+           '2710-50',
+           '3990-20',
+           '2810-20',
+           '2810-20',
+           '4210-10',
+           '4210-20',
+           '4230-20',
+           '4245-10'],
+    divisors=divisors,
+    rounding=0,
+    position=new_position + 2
+)
+
+#output excel file
 output_df.to_excel('output.xlsx')
