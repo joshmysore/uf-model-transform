@@ -155,6 +155,7 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0,
     return df
 
 divisors = fetch_exchange_rate(dates)
+print(divisors)
 
 output_df = create_and_format_column(
     df=output_df,
@@ -253,7 +254,7 @@ output_df = create_and_format_column(
            # Missing Meals & Enternainment from General Leasing Expense
            ], 
     divisors=divisors,
-    position=new_position + 4
+    position=new_position + 5
 )
 
 #output excel file
