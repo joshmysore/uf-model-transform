@@ -1,5 +1,6 @@
-import re
 import pandas as pd
+import requests
+from datetime import datetime
 import openpyxl
 
 # Step 1: Read the spreadsheet into a DataFrame
@@ -97,7 +98,44 @@ sorted_columns = [col[0] for col in column_tuples]
 # Rearrange the columns in the dataframe
 output_df = output_df[sorted_columns]
 
-def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=None, position=None):
+# create variable for column position of 0
+new_position = 0
+
+def fetch_exchange_rate(date):
+    url = 'https://www.alphavantage.co/query?function=FX_MONTHLY&from_symbol=CLF&to_symbol=CLP&apikey=YOUR_API_KEY'
+    r = requests.get(url)
+    data = r.json()
+
+    # Extract the monthly exchange rate data from the response
+    monthly_rates = data['Time Series FX (Monthly)']
+
+    # List to store the exchange rates
+    exchange_rates = []
+
+    # Iterate over the monthly data and extract the exchange rates
+    for date, rate in monthly_rates.items():
+        # Convert the date string to a datetime object
+        date_obj = datetime.strptime(date, '%Y-%m-%d')
+        # Format the date as "Month Year" (e.g., "Jun 2022")
+        month_year = date_obj.strftime('%b %Y')
+
+        # Check if the month/year is in the dates list
+        if month_year in dates:
+            exchange_rate = rate['4. close']
+            exchange_rates.append((month_year, exchange_rate))
+
+    # Sort the exchange rates based on the month/year in ascending order
+    exchange_rates.sort(key=lambda x: datetime.strptime(x[0], '%b %Y'))
+
+    # Extract the exchange rates from the list of tuples
+    divisors_UF = [x[1] for x in exchange_rates]
+
+    # Convert the exchange rates to floats
+    divisors_UF = [float(x) for x in divisors_UF]
+
+    return divisors_UF
+
+def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0, position=None):
     cols_to_sum = [col for col in df.columns if any(code in col for code in codes)]
 
     df[new_col_name] = df[cols_to_sum].sum(axis=1)
@@ -116,32 +154,28 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=No
 
     return df
 
-# create variable for column position of 0
-new_position = 0
-
-# create list of divisors
-divisors = [33087, 33417, 33837, 34258, 34600, 34812, 35111, 35288, 35510, 35575, 35839, 36033]
+divisors = fetch_exchange_rate(dates)
 
 output_df = create_and_format_column(
     df=output_df,
     new_col_name='OpEx - Payroll',
-    codes=['1110-10',
-           '1110-15',
-           '2110-10',
-           '2140-10',
-           '5110-10',
-           '5140-10',
-           '5330-10'],
+    codes=['1110-10', # Cleaning-Payroll
+           '1110-15', # Cleaning-Contract Service
+           '2110-10', # R&M-Payroll-Salaries
+           '2140-10', # R&M-Payroll-Outside Contract
+           '5110-10', # Administrative-Payroll-Salaries
+           # Missing Administrative-Payroll-Reimbursed-Labor
+           '5140-10', # Administrative-Payroll-Outside Contract
+           '5330-10'], # Other Professional Fees
     divisors=divisors,
-    rounding=0,
     position=new_position
 )
 
 output_df = create_and_format_column(
     df=output_df,
     new_col_name='OpEx - Marketing',
-    codes=['8220-10',
-           '8330-10'],
+    codes=['8220-10', # Advertising & Promo
+           '8330-10'], # Marketing
     divisors=divisors,
     rounding=0,
     position=new_position + 1
@@ -150,22 +184,76 @@ output_df = create_and_format_column(
 output_df = create_and_format_column(
     df=output_df,
     new_col_name='OpEx - Repairs & Maintenance',
-    codes=['2210-20',
-           '2610-40',
-           '2710-20',
-           '2710-20',
-           '2710-40',
-           '2710-50',
-           '3990-20',
-           '2810-20',
-           '2810-20',
-           '4210-10',
-           '4210-20',
-           '4230-20',
-           '4245-10'],
+    codes=['2210-20', # Elevator/Escalator-Service Contracts
+           '2610-40', # Plumbing-Repairs & Maintenance
+           '2710-20', # Fire & Safety-R&M Contract
+           '2710-40', # Fire & Safety-Repairs & Maintenance
+           '2710-50', # Fire & Safety-Supplies & Materials
+           '3990-20', # Repairs And Maintenance
+           '2810-20', # Pest Control-Contract
+           '4210-10', # Landscaping-Gardening Payroll (guess at code)
+           '4210-20', # Landscaping-Gardening Contract
+           '4230-20', # Pool-Service Contract
+           '4245-10'],# Turn-Over--Painting
+    divisors=divisors,
+    position=new_position + 2
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='OpEx - Office Expenses',
+    codes=['1110-40', # Cleaning-Repairs&Maintenance
+           '1110-50', # Cleaning-Supplies&Materials
+           '3120-10', # Bldg R&M (Interior)-Lock & Keys
+           '3160-10', # Bldg R&M (Interior)-Supplies & Materials
+           '3165-10', # Bldg R&M (Interior)-Uniforms
+           '3180-30', # Bldg R&M (Interior)-Generator
+           '4140-10', # Telephone
+           '4820-10', # Supplies & Materials
+           '5310-10', # Accounting/Tax
+           # missing Appraisal Fee
+           '5320-10', # Legal Fees
+           '5330-10', # Other Professional Fees
+           '5405-10', # Meals & Entertainment
+           '5410-20', # Office Employee Parking
+           '5420-10', # Office Furniture/Equipment Rental
+           '5430-10', # Office Supplies
+           '5440-10', # Office Expense
+           '5440-95', # Telecom/Internet
+           '5465-10', # Credit Card Fee
+           '5470-10', # License, Permit, & Fees
+           '5480-10', # Postage/Messengerial
+           '5550-10'], # Training & Seminar
     divisors=divisors,
     rounding=0,
-    position=new_position + 2
+    position=new_position + 3
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='OpEx - Utilities',
+    codes=['4110-10', # Electricity
+           '4120-10' # Gas
+           '4130-10'], # Water/Sewer
+    divisors=divisors,
+    position=new_position + 4
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='OpEx - Others',
+    codes=['1400-10', #  Miscellaneous - Covid19
+           '5050-30', # Non Creditable Vat
+           '5060-10', # Late Fees
+           '5610-10', # Travel - General
+           '5630-10', # Auto Expense, Parking & Mileage
+           '5630-11', # Non-Deductible Reimbursements
+           '8260-10', # Tenant Activity/Relations
+           '8290-10' # Tenet Subsidy
+           # Missing Meals & Enternainment from General Leasing Expense
+           ], 
+    divisors=divisors,
+    position=new_position + 4
 )
 
 #output excel file
