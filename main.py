@@ -138,9 +138,12 @@ def fetch_exchange_rate(date):
 def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0, position=None):
     cols_to_sum = [col for col in df.columns if any(code in col for code in codes)]
 
+    # print(f'Columns to be summed for {new_col_name}: {cols_to_sum}')  # Debug line
+
     df[new_col_name] = df[cols_to_sum].sum(axis=1)
 
     if divisors is not None:
+        # print(f'Divisors for {new_col_name}: {divisors}')  # Debug line
         for i, divisor in enumerate(divisors):
             df.loc[df.index[i], new_col_name] = df.loc[df.index[i], new_col_name] / divisor
 
@@ -152,10 +155,11 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0,
         cols.insert(position, cols.pop(cols.index(new_col_name)))
         df = df.reindex(columns=cols)
 
+    # print(f'Data for {new_col_name}: {df[new_col_name]}')  # Debug line
+
     return df
 
 divisors = fetch_exchange_rate(dates)
-print(divisors)
 
 output_df = create_and_format_column(
     df=output_df,
@@ -234,7 +238,7 @@ output_df = create_and_format_column(
     df=output_df,
     new_col_name='OpEx - Utilities',
     codes=['4110-10', # Electricity
-           '4120-10' # Gas
+           '4120-10', # Gas
            '4130-10'], # Water/Sewer
     divisors=divisors,
     position=new_position + 4
@@ -252,10 +256,57 @@ output_df = create_and_format_column(
            '8260-10', # Tenant Activity/Relations
            '8290-10' # Tenet Subsidy
            # Missing Meals & Enternainment from General Leasing Expense
+           # Missing Legal Service from Other Expenses
+           # Missing Interest Income-Investment from Other Expenses
+           # Missing Bank Charges from Other Expenses
            ], 
     divisors=divisors,
     position=new_position + 5
 )
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='OpEx - Property Management Fee',
+    codes=['5215-10'], # Property Mgmnt Fee-3Rd Party
+    divisors=divisors,
+    position=new_position + 6
+)
+
+output_df['OpEx - Maintenance'] = output_df['OpEx - Payroll'] + output_df['OpEx - Marketing'] + output_df['OpEx - Repairs & Maintenance'] + output_df['OpEx - Office Expenses'] + output_df['OpEx - Utilities'] + output_df['OpEx - Others']
+output_df.insert(new_position, 'OpEx - Maintenance', output_df.pop('OpEx - Maintenance'))
+
+output_df['OpEx - Total'] = output_df['OpEx - Maintenance'] + output_df['OpEx - Property Management Fee']
+output_df.insert(new_position + 7, 'OpEx - Total', output_df.pop('OpEx - Total'))
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='SG&A - Real Estate Taxes',
+    codes=['7110-10'], # Real Estate Taxes
+    divisors=divisors,
+    position=new_position + 8
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='SG&A - Insurance',
+    codes=['7230-10'], # Property Insurance
+    divisors=divisors,
+    position=new_position + 9
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='SG&A - Leasing Comissions',
+    codes=[], 
+    divisors=divisors,
+    position=new_position + 10
+)
+
+output_df['SG&A - Total'] = output_df['SG&A - Real Estate Taxes'] + output_df['SG&A - Insurance'] + output_df['SG&A - Leasing Comissions']
+output_df.insert(new_position + 11, 'SG&A - Total', output_df.pop('SG&A - Total'))
+
+# create a new column of the divisors next to OpEx - Payroll
+output_df.insert(new_position, 'UF', divisors)
 
 #output excel file
 output_df.to_excel('output.xlsx')
