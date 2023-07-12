@@ -7,12 +7,8 @@ import openpyxl
 df = pd.read_excel('12-month-statement.xlsx')
 
 code_column = None
-RE_codes = []
-NRE_codes = []
-RE_names = []
-NRE_names = []
-RE_final = []
-NRE_final = []
+code_prefixes = [(4, 'REV'), (5, 'RE'), (6, 'NRE'), (7, 'C&GE'), (8, 'OI&E'), (9, 'OI&E')]
+groups = {i: {"codes": [], "names": [], "final": [], "prefix": prefix} for i, prefix in code_prefixes}
 
 # Find the column that contains codes based on revenue code
 for col in df.columns:
@@ -24,24 +20,20 @@ if code_column is None:
     print("Could not find revenue column.")
 else:
     name_column = df.columns[df.columns.get_loc(code_column) + 1]
-    RE_rows = df[(df[code_column] >= '50010-00') & (df[code_column] <= '59999-99')]
-    NRE_rows = df[(df[code_column] >= '61000-00') & (df[code_column] <= '69999-99')]
-    RE_data = {(code, "RE - " + RE_rows.loc[RE_rows[code_column] == code, name_column].values[0].strip().title()): [] for code in RE_rows[code_column]}
-    NRE_data = {(code, "NRE - " + NRE_rows.loc[NRE_rows[code_column] == code, name_column].values[0].strip().title()): [] for code in NRE_rows[code_column]}
 
-    for (code, name), data in RE_data.items():
-        RE_codes.append(code)
-        RE_names.append(name)
-        RE_final.append(code + ": " + name)
-
-    for (code, name), data in NRE_data.items():
-        NRE_codes.append(code)
-        NRE_names.append(name)
-        NRE_final.append(code + ": " + name)
+    # For each group, filter rows based on the code, create a dictionary and populate the lists
+    for i, prefix in code_prefixes:
+        group_rows = df[(df[code_column] >= f'{i}0000-00') & (df[code_column] <= f'{i}9999-99')]
+        group_data = {(code, f"{prefix} - " + group_rows.loc[group_rows[code_column] == code, name_column].values[0].strip().title()): [] for code in group_rows[code_column]}
+        
+        for (code, name), data in group_data.items():
+            groups[i]["codes"].append(code)
+            groups[i]["names"].append(name)
+            groups[i]["final"].append(code + ": " + name)
 
 # All pre-read work
-codes = RE_codes + NRE_codes
-col_final = RE_final + NRE_final
+codes = [code for group in groups.values() for code in group["codes"]]
+col_final = [final for group in groups.values() for final in group["final"]]
 dates = []
 data_dict = {}
 
@@ -89,8 +81,8 @@ output_df = output_df[output_df.columns.drop(list(output_df.filter(regex='Total'
 # Create a list of tuples where each tuple is (original_column_name, code)
 column_tuples = [(col, col.split(':')[0]) for col in output_df.columns.tolist()]
 
-# Sort this list based on the code (while ignoring the first digit)
-column_tuples.sort(key=lambda x: int(x[1].split('-')[0][1:] + x[1].split('-')[1]))
+# Sort this list based on the entire code
+column_tuples.sort(key=lambda x: int(x[1].split('-')[0] + x[1].split('-')[1]))
 
 # Extract the sorted list of original column names
 sorted_columns = [col[0] for col in column_tuples]
@@ -102,7 +94,7 @@ output_df = output_df[sorted_columns]
 new_position = 0
 
 def fetch_exchange_rate(date):
-    url = 'https://www.alphavantage.co/query?function=FX_MONTHLY&from_symbol=CLF&to_symbol=CLP&apikey=YOUR_API_KEY'
+    url = 'https://www.alphavantage.co/query?function=FX_MONTHLY&from_symbol=CLF&to_symbol=CLP&apikey=5TLIDN7TN6IQZJUE'
     r = requests.get(url)
     data = r.json()
 
@@ -135,7 +127,10 @@ def fetch_exchange_rate(date):
 
     return divisors_UF
 
-def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0, position=None):
+used_codes = set()
+
+def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0, position=None, factor = 1.):
+    global used_codes
     cols_to_sum = [col for col in df.columns if any(code in col for code in codes)]
 
     # print(f'Columns to be summed for {new_col_name}: {cols_to_sum}')  # Debug line
@@ -147,6 +142,9 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0,
         for i, divisor in enumerate(divisors):
             df.loc[df.index[i], new_col_name] = df.loc[df.index[i], new_col_name] / divisor
 
+    if factor != 1.:
+        df[new_col_name] = df[new_col_name] * factor
+
     if rounding is not None:
         df[new_col_name] = df[new_col_name].round(rounding)
 
@@ -156,6 +154,8 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0,
         df = df.reindex(columns=cols)
 
     # print(f'Data for {new_col_name}: {df[new_col_name]}')  # Debug line
+    # After performing the column operations, add the used 'codes' to the 'used_codes' set
+    used_codes.update(codes) 
 
     return df
 
@@ -169,7 +169,7 @@ output_df = create_and_format_column(
            '2110-10', # R&M-Payroll-Salaries
            '2140-10', # R&M-Payroll-Outside Contract
            '5110-10', # Administrative-Payroll-Salaries
-           # Missing Administrative-Payroll-Reimbursed-Labor
+           '5120-10', # Administrative-Payroll-Reimbursed-Labor
            '5140-10', # Administrative-Payroll-Outside Contract
            '5330-10'], # Other Professional Fees
     divisors=divisors,
@@ -196,7 +196,7 @@ output_df = create_and_format_column(
            '2710-50', # Fire & Safety-Supplies & Materials
            '3990-20', # Repairs And Maintenance
            '2810-20', # Pest Control-Contract
-           '4210-10', # Landscaping-Gardening Payroll (guess at code)
+           '4210-10', # Landscaping-Gardening Payroll
            '4210-20', # Landscaping-Gardening Contract
            '4230-20', # Pool-Service Contract
            '4245-10'],# Turn-Over--Painting
@@ -216,7 +216,7 @@ output_df = create_and_format_column(
            '4140-10', # Telephone
            '4820-10', # Supplies & Materials
            '5310-10', # Accounting/Tax
-           # missing Appraisal Fee
+           '95200-15', # OI&E - Appraisal Fee (category 9)
            '5320-10', # Legal Fees
            '5330-10', # Other Professional Fees
            '5405-10', # Meals & Entertainment
@@ -247,18 +247,19 @@ output_df = create_and_format_column(
 output_df = create_and_format_column(
     df=output_df,
     new_col_name='OpEx - Others',
-    codes=['1400-10', #  Miscellaneous - Covid19
+    codes=['1400-10', # Miscellaneous - Covid19
            '5050-30', # Non Creditable Vat
            '5060-10', # Late Fees
            '5610-10', # Travel - General
            '5630-10', # Auto Expense, Parking & Mileage
            '5630-11', # Non-Deductible Reimbursements
            '8260-10', # Tenant Activity/Relations
-           '8290-10' # Tenet Subsidy
-           # Missing Meals & Enternainment from General Leasing Expense
-           # Missing Legal Service from Other Expenses
-           # Missing Interest Income-Investment from Other Expenses
-           # Missing Bank Charges from Other Expenses
+           '8290-10', # Tenant Subsidy
+           '8230-11', # Meals & Enternainment from General Leasing Expense
+           '70110-10', # C&GE - Legal Services (category 7)
+           '91010-10', # OI&E - Interest Income-Investment (category 9)
+           '91050-10', # OI&E - Interest Income-Others (category 9)
+           '93110-10' # OI&E - Bank Charges (category 9)
            ], 
     divisors=divisors,
     position=new_position + 5
@@ -276,14 +277,14 @@ output_df['OpEx - Maintenance'] = output_df['OpEx - Payroll'] + output_df['OpEx 
 output_df.insert(new_position, 'OpEx - Maintenance', output_df.pop('OpEx - Maintenance'))
 
 output_df['OpEx - Total'] = output_df['OpEx - Maintenance'] + output_df['OpEx - Property Management Fee']
-output_df.insert(new_position + 7, 'OpEx - Total', output_df.pop('OpEx - Total'))
+output_df.insert(new_position + 8, 'OpEx - Total', output_df.pop('OpEx - Total'))
 
 output_df = create_and_format_column(
     df=output_df,
     new_col_name='SG&A - Real Estate Taxes',
     codes=['7110-10'], # Real Estate Taxes
     divisors=divisors,
-    position=new_position + 8
+    position=new_position + 9
 )
 
 output_df = create_and_format_column(
@@ -291,22 +292,50 @@ output_df = create_and_format_column(
     new_col_name='SG&A - Insurance',
     codes=['7230-10'], # Property Insurance
     divisors=divisors,
-    position=new_position + 9
+    position=new_position + 10
 )
 
 output_df = create_and_format_column(
     df=output_df,
     new_col_name='SG&A - Leasing Comissions',
-    codes=[], 
+    codes=[ # REVENUES W/O VAT
+           '43310-10', # REV - Parking Operation Income (category 4, Residential Parking Income)
+           '43330-10', # REV - Parking Base Rent (category 4, Residential Parking Income)
+           '43350-10', # REV - Parking Concession (category 4, Residential Parking Income)
+           '43021-01', # REV - Storage Income (category 4)
+           '41310-10', # REV - Lease Cancelations (category 4, Other Income)
+           '42051-10', # REV - Tenant Work Order (category 4, Other Income)
+           '42480-10', # REV - Miscellaneous Income (category 4, Other Income)
+           '42510-10', # REV - Key Income (category 4, Other Income)
+           '42515-10', # REV - Application Fee (category 4, Other Income)
+           '42560-10', # REV - Tenant Damage Income (category 4, Other Income)
+           '43013-20', # REV - Pet Rent (category 4, Other Income)
+           '43021-02', # REV - Facility Use Fee (category 4, Other Income)
+           # REVENUES W/ VAT
+           # Effective Service Revenues
+           '42030-10', # REV - Cleaning Charges Income (category 4, Effective Service Revenues)
+           # Effective Residential Revenues
+           '41130-10', # REV - Rent - Residential (category 4, Residential Leasing)
+           '41347-10', # REV - Gain/Loss To Lease (category 4, Gain/Loss To Lease)
+           '41350-30', # REV - Rent Vacancy - Residential (category 4, Less: Vacancy Factor)
+           '41320-10', # REV - Rent Concessions (category 4, Less: Concessions)
+           '41347-20', # REV - Loss From Model (category 4, Less: Model Units)
+           '5050-10'], # Bad Debt Expense (Less: Credit Losses)
     divisors=divisors,
-    position=new_position + 10
+    position=new_position + 11,
+    factor=0.025
 )
 
 output_df['SG&A - Total'] = output_df['SG&A - Real Estate Taxes'] + output_df['SG&A - Insurance'] + output_df['SG&A - Leasing Comissions']
-output_df.insert(new_position + 11, 'SG&A - Total', output_df.pop('SG&A - Total'))
+output_df.insert(new_position + 12, 'SG&A - Total', output_df.pop('SG&A - Total'))
 
 # create a new column of the divisors next to OpEx - Payroll
 output_df.insert(new_position, 'UF', divisors)
 
-#output excel file
-output_df.to_excel('output.xlsx')
+#output excel file transposing the rows and columns
+output_df.T.to_excel('output.xlsx')
+
+all_codes = set(code for group in groups.values() for code in group["codes"])
+unused_codes = all_codes - used_codes
+print(f"Unused codes: {unused_codes}")
+
