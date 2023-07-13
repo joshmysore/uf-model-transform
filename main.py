@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 from datetime import datetime
+from forex_python.converter import CurrencyRates
 import openpyxl
 
 # Step 1: Read the spreadsheet into a DataFrame
@@ -97,6 +98,8 @@ def fetch_exchange_rate(date):
     url = 'https://www.alphavantage.co/query?function=FX_MONTHLY&from_symbol=CLF&to_symbol=CLP&apikey=5TLIDN7TN6IQZJUE'
     r = requests.get(url)
     data = r.json()
+
+    print(data)
 
     # Extract the monthly exchange rate data from the response
     monthly_rates = data['Time Series FX (Monthly)']
@@ -329,13 +332,176 @@ output_df = create_and_format_column(
 output_df['SG&A - Total'] = output_df['SG&A - Real Estate Taxes'] + output_df['SG&A - Insurance'] + output_df['SG&A - Leasing Comissions']
 output_df.insert(new_position + 12, 'SG&A - Total', output_df.pop('SG&A - Total'))
 
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='Revenues w/ VAT - Residential Leasing',
+    codes=['41130-10'], # REV - Rent - Residential
+    divisors=divisors,
+    position=new_position + 13
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='Revenues w/ VAT - Gain/Loss To Lease',
+    codes=['41347-10'], # REV - Gain/Loss To Lease
+    divisors=divisors,
+    position=new_position + 14
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='Revenues w/ VAT - Less: Vacancy Factor',
+    codes=['41347-10'], # REV - Gain/Loss To Lease
+    divisors=divisors,
+    position=new_position + 15
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='Revenues w/ VAT - Less: Concessions',
+    codes=['41320-10'], # REV - Rent Concessions
+    divisors=divisors,
+    position=new_position + 16
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='Revenues w/ VAT - Less: Model Units',
+    codes=['41347-20'], # REV - Loss From Model
+    divisors=divisors,
+    position=new_position + 17
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='Revenues w/ VAT - Less: Credit Losses',
+    codes=['5050-10'], # Bad Debt Expense
+    divisors=divisors,
+    position=new_position + 18
+)
+
+output_df['Effective Residential Revenues'] = output_df['Revenues w/ VAT - Residential Leasing'] + output_df['Revenues w/ VAT - Gain/Loss To Lease'] + output_df['Revenues w/ VAT - Less: Vacancy Factor'] + output_df['Revenues w/ VAT - Less: Concessions'] + output_df['Revenues w/ VAT - Less: Model Units'] + output_df['Revenues w/ VAT - Less: Credit Losses']
+output_df.insert(new_position + 19, 'Effective Residential Revenues', output_df.pop('Effective Residential Revenues'))
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='Revenues w/ VAT - Service Revenues',
+    codes=['42030-10'], # REV - Cleaning Charges Income
+    divisors=divisors,
+    position=new_position + 20
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='Revenues w/ VAT - Less: Vacancy Factor',
+    codes=None,
+    divisors=divisors,
+    position=new_position + 21
+)
+
+output_df['Effective Service Revenues'] = output_df['Revenues w/ VAT - Service Revenues'] + output_df['Revenues w/ VAT - Less: Vacancy Factor']
+output_df.insert(new_position + 22, 'Effective Service Revenues', output_df.pop('Effective Service Revenues'))
+
+output_df['Revenues w/ VAT'] = output_df['Effective Residential Revenues'] + output_df['Effective Service Revenues']
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='Revenues w/o VAT - Residential Parking Income',
+    codes=['43310-10', # REV - Parking Operation Income 
+           '43330-10', # REV - Parking Base Rent
+           '43350-10'], # REV - Parking Concession
+    divisors=divisors,
+    position=new_position + 23
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='Revenues w/o VAT - Storage Income',
+    codes=['43021-01'], # REV - Storage Income
+    divisors=divisors,
+    position=new_position + 24
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='Revenues w/o VAT - Other Income',
+    codes=['41310-10', # REV - Lease Cancelations 
+           '42051-10', # REV - Tenant Work Order 
+           '42480-10', # REV - Miscellaneous Income 
+           '42510-10', # REV - Key Income
+           '42515-10', # REV - Application Fee 
+           '42560-10', # REV - Tenant Damage Income 
+           '43013-20', # REV - Pet Rent 
+           '43021-02'], # REV - Facility Use Fee
+    divisors=divisors,
+    position=new_position + 25
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='Revenues w/o VAT - Less: Vacancy Factor',
+    codes=None,
+    divisors=divisors,
+    position=new_position + 26
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='Revenues w/o VAT - Less: Credit Losses',
+    codes=None,
+    divisors=divisors,
+    position=new_position + 27
+)
+
+output_df['Revenues w/o VAT'] = output_df['Revenues w/o VAT - Residential Parking Income'] + output_df['Revenues w/o VAT - Storage Income'] + output_df['Revenues w/o VAT - Other Income'] + output_df['Revenues w/o VAT - Less: Vacancy Factor'] + output_df['Revenues w/o VAT - Less: Credit Losses']
+output_df.insert(new_position + 28, 'Revenues w/o VAT', output_df.pop('Revenues w/o VAT'))
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='Maintenance - Maintenance Reimbursements',
+    codes=['41410-20', # REV - Cam Recovery-Estimate
+           '41130-20'], # REV - Rental - Additional Services
+    divisors=divisors,
+    position=new_position + 29
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='Maintenance - Less: Vacancy Factor',
+    codes=None,
+    divisors=divisors,
+    position=new_position + 30
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='Maintenance - Less: Model Units',
+    codes=None,
+    divisors=divisors,
+    position=new_position + 31
+)
+
+output_df = create_and_format_column(
+    df=output_df,
+    new_col_name='Maintenance - Less: Credits Losses',
+    codes=None,
+    divisors=divisors,
+    position=new_position + 32
+)
+
+output_df['Maintenance'] = output_df['Maintenance - Maintenance Reimbursements'] + output_df['Maintenance - Less: Vacancy Factor'] + output_df['Maintenance - Less: Model Units'] + output_df['Maintenance - Less: Credits Losses']
+output_df.insert(new_position + 33, 'Maintenance', output_df.pop('Maintenance'))
+
+output_df['Total Revenue'] = output_df['Revenues w/ VAT'] + output_df['Revenues w/o VAT'] + output_df['Maintenance']
+output_df.insert(new_position + 34, 'Total Revenue', output_df.pop('Total Revenue'))
+
 # create a new column of the divisors next to OpEx - Payroll
 output_df.insert(new_position, 'UF', divisors)
 
 #output excel file transposing the rows and columns
 output_df.T.to_excel('output.xlsx')
 
-all_codes = set(code for group in groups.values() for code in group["codes"])
-unused_codes = all_codes - used_codes
-print(f"Unused codes: {unused_codes}")
+# all_codes = set(code for group in groups.values() for code in group["codes"])
+# unused_codes = all_codes - used_codes
+# print(f"Unused codes: {unused_codes}")
 
