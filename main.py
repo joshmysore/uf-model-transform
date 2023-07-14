@@ -1,7 +1,7 @@
 import pandas as pd
 import requests
 from datetime import datetime
-from forex_python.converter import CurrencyRates
+from alpha_vantage.foreignexchange import ForeignExchange
 import openpyxl
 
 # Step 1: Read the spreadsheet into a DataFrame
@@ -99,8 +99,6 @@ def fetch_exchange_rate(date):
     r = requests.get(url)
     data = r.json()
 
-    print(data)
-
     # Extract the monthly exchange rate data from the response
     monthly_rates = data['Time Series FX (Monthly)']
 
@@ -130,15 +128,21 @@ def fetch_exchange_rate(date):
 
     return divisors_UF
 
-used_codes = set()
-
-def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0, position=None, factor = 1.):
-    global used_codes
+def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0, position=None, factor=1., subtract_codes=None):
+    subtract_cols = []
     cols_to_sum = [col for col in df.columns if any(code in col for code in codes)]
 
-    # print(f'Columns to be summed for {new_col_name}: {cols_to_sum}')  # Debug line
+    if subtract_codes is not None:
+        subtract_cols = [col for col in df.columns if any(code in col for code in subtract_codes)]
+        for col in subtract_cols:
+            if col in cols_to_sum:  # check if column is in cols_to_sum before removing
+                cols_to_sum.remove(col)  
+
+    print(f'{new_col_name}: {cols_to_sum}')  # Debug line
+    # print(f'Columns to be subtracted for {new_col_name}: {subtract_cols}')  # Debug line
 
     df[new_col_name] = df[cols_to_sum].sum(axis=1)
+    df[new_col_name] -= df[subtract_cols].sum(axis=1)
 
     if divisors is not None:
         # print(f'Divisors for {new_col_name}: {divisors}')  # Debug line
@@ -146,7 +150,7 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0,
             df.loc[df.index[i], new_col_name] = df.loc[df.index[i], new_col_name] / divisor
 
     if factor != 1.:
-        df[new_col_name] = df[new_col_name] * factor
+        df[new_col_name] *= factor
 
     if rounding is not None:
         df[new_col_name] = df[new_col_name].round(rounding)
@@ -157,12 +161,10 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0,
         df = df.reindex(columns=cols)
 
     # print(f'Data for {new_col_name}: {df[new_col_name]}')  # Debug line
-    # After performing the column operations, add the used 'codes' to the 'used_codes' set
-    used_codes.update(codes) 
 
     return df
 
-divisors = fetch_exchange_rate(dates)
+divisors = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
 output_df = create_and_format_column(
     df=output_df,
@@ -176,7 +178,8 @@ output_df = create_and_format_column(
            '5140-10', # Administrative-Payroll-Outside Contract
            '5330-10'], # Other Professional Fees
     divisors=divisors,
-    position=new_position
+    position=new_position,
+    factor=-1
 )
 
 output_df = create_and_format_column(
@@ -186,7 +189,8 @@ output_df = create_and_format_column(
            '8330-10'], # Marketing
     divisors=divisors,
     rounding=0,
-    position=new_position + 1
+    position=new_position + 1,
+    factor=-1
 )
 
 output_df = create_and_format_column(
@@ -204,7 +208,8 @@ output_df = create_and_format_column(
            '4230-20', # Pool-Service Contract
            '4245-10'],# Turn-Over--Painting
     divisors=divisors,
-    position=new_position + 2
+    position=new_position + 2,
+    factor=-1
 )
 
 output_df = create_and_format_column(
@@ -234,7 +239,8 @@ output_df = create_and_format_column(
            '5550-10'], # Training & Seminar
     divisors=divisors,
     rounding=0,
-    position=new_position + 3
+    position=new_position + 3,
+    factor=-1
 )
 
 output_df = create_and_format_column(
@@ -244,7 +250,8 @@ output_df = create_and_format_column(
            '4120-10', # Gas
            '4130-10'], # Water/Sewer
     divisors=divisors,
-    position=new_position + 4
+    position=new_position + 4,
+    factor=-1
 )
 
 output_df = create_and_format_column(
@@ -260,12 +267,12 @@ output_df = create_and_format_column(
            '8290-10', # Tenant Subsidy
            '8230-11', # Meals & Enternainment from General Leasing Expense
            '70110-10', # C&GE - Legal Services (category 7)
-           '91010-10', # OI&E - Interest Income-Investment (category 9)
-           '91050-10', # OI&E - Interest Income-Others (category 9)
-           '93110-10' # OI&E - Bank Charges (category 9)
-           ], 
+           '93110-10'], # OI&E - Bank Charges (category 9)
+    subtract_codes= ['91010-10', # OI&E - Interest Income-Investment (category 9) (negative in model)
+                     '91050-10'], # OI&E - Interest Income-Others (category 9) (negative in model)
     divisors=divisors,
-    position=new_position + 5
+    position=new_position + 5,
+    factor=-1
 )
 
 output_df = create_and_format_column(
@@ -273,11 +280,12 @@ output_df = create_and_format_column(
     new_col_name='OpEx - Property Management Fee',
     codes=['5215-10'], # Property Mgmnt Fee-3Rd Party
     divisors=divisors,
-    position=new_position + 6
+    position=new_position + 6,
+    factor=-1
 )
 
 output_df['OpEx - Maintenance'] = output_df['OpEx - Payroll'] + output_df['OpEx - Marketing'] + output_df['OpEx - Repairs & Maintenance'] + output_df['OpEx - Office Expenses'] + output_df['OpEx - Utilities'] + output_df['OpEx - Others']
-output_df.insert(new_position, 'OpEx - Maintenance', output_df.pop('OpEx - Maintenance'))
+output_df.insert(new_position + 7, 'OpEx - Maintenance', output_df.pop('OpEx - Maintenance'))
 
 output_df['OpEx - Total'] = output_df['OpEx - Maintenance'] + output_df['OpEx - Property Management Fee']
 output_df.insert(new_position + 8, 'OpEx - Total', output_df.pop('OpEx - Total'))
@@ -287,7 +295,8 @@ output_df = create_and_format_column(
     new_col_name='SG&A - Real Estate Taxes',
     codes=['7110-10'], # Real Estate Taxes
     divisors=divisors,
-    position=new_position + 9
+    position=new_position + 9,
+    factor=-1
 )
 
 output_df = create_and_format_column(
@@ -295,7 +304,8 @@ output_df = create_and_format_column(
     new_col_name='SG&A - Insurance',
     codes=['7230-10'], # Property Insurance
     divisors=divisors,
-    position=new_position + 10
+    position=new_position + 10,
+    factor=-1
 )
 
 output_df = create_and_format_column(
@@ -326,7 +336,7 @@ output_df = create_and_format_column(
            '5050-10'], # Bad Debt Expense (Less: Credit Losses)
     divisors=divisors,
     position=new_position + 11,
-    factor=0.025
+    factor=-0.025
 )
 
 output_df['SG&A - Total'] = output_df['SG&A - Real Estate Taxes'] + output_df['SG&A - Insurance'] + output_df['SG&A - Leasing Comissions']
@@ -351,7 +361,7 @@ output_df = create_and_format_column(
 output_df = create_and_format_column(
     df=output_df,
     new_col_name='Revenues w/ VAT - Less: Vacancy Factor',
-    codes=['41347-10'], # REV - Gain/Loss To Lease
+    codes=['41350-30'], # REV - Rent Vacancy
     divisors=divisors,
     position=new_position + 15
 )
@@ -377,7 +387,8 @@ output_df = create_and_format_column(
     new_col_name='Revenues w/ VAT - Less: Credit Losses',
     codes=['5050-10'], # Bad Debt Expense
     divisors=divisors,
-    position=new_position + 18
+    position=new_position + 18,
+    factor = -1
 )
 
 output_df['Effective Residential Revenues'] = output_df['Revenues w/ VAT - Residential Leasing'] + output_df['Revenues w/ VAT - Gain/Loss To Lease'] + output_df['Revenues w/ VAT - Less: Vacancy Factor'] + output_df['Revenues w/ VAT - Less: Concessions'] + output_df['Revenues w/ VAT - Less: Model Units'] + output_df['Revenues w/ VAT - Less: Credit Losses']
@@ -391,18 +402,11 @@ output_df = create_and_format_column(
     position=new_position + 20
 )
 
-output_df = create_and_format_column(
-    df=output_df,
-    new_col_name='Revenues w/ VAT - Less: Vacancy Factor',
-    codes=None,
-    divisors=divisors,
-    position=new_position + 21
-)
-
-output_df['Effective Service Revenues'] = output_df['Revenues w/ VAT - Service Revenues'] + output_df['Revenues w/ VAT - Less: Vacancy Factor']
-output_df.insert(new_position + 22, 'Effective Service Revenues', output_df.pop('Effective Service Revenues'))
+output_df['Effective Service Revenues'] = output_df['Revenues w/ VAT - Service Revenues']
+output_df.insert(new_position + 21, 'Effective Service Revenues', output_df.pop('Effective Service Revenues'))
 
 output_df['Revenues w/ VAT'] = output_df['Effective Residential Revenues'] + output_df['Effective Service Revenues']
+output_df.insert(new_position + 22, 'Revenues w/ VAT', output_df.pop('Revenues w/ VAT'))
 
 output_df = create_and_format_column(
     df=output_df,
@@ -440,7 +444,7 @@ output_df = create_and_format_column(
 output_df = create_and_format_column(
     df=output_df,
     new_col_name='Revenues w/o VAT - Less: Vacancy Factor',
-    codes=None,
+    codes=[],
     divisors=divisors,
     position=new_position + 26
 )
@@ -448,7 +452,7 @@ output_df = create_and_format_column(
 output_df = create_and_format_column(
     df=output_df,
     new_col_name='Revenues w/o VAT - Less: Credit Losses',
-    codes=None,
+    codes=[],
     divisors=divisors,
     position=new_position + 27
 )
@@ -468,7 +472,7 @@ output_df = create_and_format_column(
 output_df = create_and_format_column(
     df=output_df,
     new_col_name='Maintenance - Less: Vacancy Factor',
-    codes=None,
+    codes=[],
     divisors=divisors,
     position=new_position + 30
 )
@@ -476,7 +480,7 @@ output_df = create_and_format_column(
 output_df = create_and_format_column(
     df=output_df,
     new_col_name='Maintenance - Less: Model Units',
-    codes=None,
+    codes=[],
     divisors=divisors,
     position=new_position + 31
 )
@@ -484,7 +488,7 @@ output_df = create_and_format_column(
 output_df = create_and_format_column(
     df=output_df,
     new_col_name='Maintenance - Less: Credits Losses',
-    codes=None,
+    codes=[],
     divisors=divisors,
     position=new_position + 32
 )
@@ -500,8 +504,3 @@ output_df.insert(new_position, 'UF', divisors)
 
 #output excel file transposing the rows and columns
 output_df.T.to_excel('output.xlsx')
-
-# all_codes = set(code for group in groups.values() for code in group["codes"])
-# unused_codes = all_codes - used_codes
-# print(f"Unused codes: {unused_codes}")
-
