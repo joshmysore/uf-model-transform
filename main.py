@@ -105,7 +105,7 @@ def fetch_exchange_rate(date):
     # List to store the exchange rates
     exchange_rates = []
 
-    # Iterate over the monthly data and extract the exchange rates
+    # Iterate over the monthly data and extract the exchange rates (have a try with)
     for date, rate in monthly_rates.items():
         # Convert the date string to a datetime object
         date_obj = datetime.strptime(date, '%Y-%m-%d')
@@ -164,7 +164,7 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0,
 
     return df
 
-divisors = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+divisors = fetch_exchange_rate(dates)
 
 output_df = create_and_format_column(
     df=output_df,
