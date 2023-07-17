@@ -1,11 +1,28 @@
+# Import all needed libraries
 import pandas as pd
+import tkinter as tk
+from tkinter import filedialog
+import os
 import requests
 from datetime import datetime
-from alpha_vantage.foreignexchange import ForeignExchange
 import openpyxl
+from openpyxl.styles import Font, PatternFill, Border, Side
 
-# Step 1: Read the spreadsheet into a DataFrame
-df = pd.read_excel('12-month-statement.xlsx')
+# Function 1: get_file_path()
+input('Press Enter to select a file to be read into a dataframe...')
+root = tk.Tk()
+root.withdraw()
+file_path = filedialog.askopenfilename()
+
+df = pd.read_excel(file_path)
+
+# Ensure the file chosen is an excel file that can be processed
+if not file_path.endswith('.xlsx'):
+    print('Please choose an excel file.')
+    exit()
+
+# print dialogue message confirming the file has been chosen and read
+print(f'File {os.path.basename(file_path)} has been read into a dataframe.')
 
 code_column = None
 code_prefixes = [(4, 'REV'), (5, 'RE'), (6, 'NRE'), (7, 'C&GE'), (8, 'OI&E'), (9, 'OI&E')]
@@ -95,38 +112,54 @@ output_df = output_df[sorted_columns]
 new_position = 0
 
 def fetch_exchange_rate(date):
-    url = 'https://www.alphavantage.co/query?function=FX_MONTHLY&from_symbol=CLF&to_symbol=CLP&apikey=5TLIDN7TN6IQZJUE'
-    r = requests.get(url)
-    data = r.json()
+    try:
+        # if server isn't down
+        url = 'https://www.alphavantage.co/query?function=FX_MONTHLY&from_symbol=CLF&to_symbol=CLP&apikey=5TLIDN7TN6IQZJUE'
+        r = requests.get(url)
+        data = r.json()
 
-    # Extract the monthly exchange rate data from the response
-    monthly_rates = data['Time Series FX (Monthly)']
+        # If there is an error message in the response, return default divisors
+        if 'Error Message' in data:
+            print("Server is down. Using default divisors.")
+            return [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
-    # List to store the exchange rates
-    exchange_rates = []
+        # Extract the monthly exchange rate data from the response
+        monthly_rates = data['Time Series FX (Monthly)']
 
-    # Iterate over the monthly data and extract the exchange rates (have a try with)
-    for date, rate in monthly_rates.items():
-        # Convert the date string to a datetime object
-        date_obj = datetime.strptime(date, '%Y-%m-%d')
-        # Format the date as "Month Year" (e.g., "Jun 2022")
-        month_year = date_obj.strftime('%b %Y')
+        # List to store the exchange rates
+        exchange_rates = []
 
-        # Check if the month/year is in the dates list
-        if month_year in dates:
-            exchange_rate = rate['4. close']
-            exchange_rates.append((month_year, exchange_rate))
+        # Iterate over the monthly data and extract the exchange rates
+        for date, rate in monthly_rates.items():
+            # Convert the date string to a datetime object
+            date_obj = datetime.strptime(date, '%Y-%m-%d')
+            # Format the date as "Month Year" (e.g., "Jun 2022")
+            month_year = date_obj.strftime('%b %Y')
 
-    # Sort the exchange rates based on the month/year in ascending order
-    exchange_rates.sort(key=lambda x: datetime.strptime(x[0], '%b %Y'))
+            # Check if the month/year is in the dates list
+            if month_year in dates:
+                exchange_rate = rate['4. close']
+                exchange_rates.append((month_year, exchange_rate))
 
-    # Extract the exchange rates from the list of tuples
-    divisors_UF = [x[1] for x in exchange_rates]
+        # Sort the exchange rates based on the month/year in ascending order
+        exchange_rates.sort(key=lambda x: datetime.strptime(x[0], '%b %Y'))
 
-    # Convert the exchange rates to floats
-    divisors_UF = [float(x) for x in divisors_UF]
+        # Extract the exchange rates from the list of tuples
+        divisors_UF = [x[1] for x in exchange_rates]
 
-    return divisors_UF
+        # Convert the exchange rates to floats
+        divisors_UF = [float(x) for x in divisors_UF]
+
+        print("Successfully fetched data from the server.")
+        return divisors_UF
+
+    except Exception as e:
+        print(f'Error fetching exchange rate: {e}')
+        print("Using default divisors due to the error.")
+        # In case of any other unhandled exception, return default divisors
+        return [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    
+divisors = fetch_exchange_rate(dates)
 
 def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0, position=None, factor=1., subtract_codes=None):
     subtract_cols = []
@@ -138,7 +171,7 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0,
             if col in cols_to_sum:  # check if column is in cols_to_sum before removing
                 cols_to_sum.remove(col)  
 
-    print(f'{new_col_name}: {cols_to_sum}')  # Debug line
+    # print(f'{new_col_name}: {cols_to_sum}')  # Debug line
     # print(f'Columns to be subtracted for {new_col_name}: {subtract_cols}')  # Debug line
 
     df[new_col_name] = df[cols_to_sum].sum(axis=1)
@@ -163,8 +196,6 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0,
     # print(f'Data for {new_col_name}: {df[new_col_name]}')  # Debug line
 
     return df
-
-divisors = fetch_exchange_rate(dates)
 
 output_df = create_and_format_column(
     df=output_df,
@@ -502,5 +533,72 @@ output_df.insert(new_position + 34, 'Total Revenue', output_df.pop('Total Revenu
 # create a new column of the divisors next to OpEx - Payroll
 output_df.insert(new_position, 'UF', divisors)
 
-#output excel file transposing the rows and columns
-output_df.T.to_excel('output.xlsx')
+# output excel file as raw_output_{original file name} transposing the rows and columns 
+output_df.T.to_excel(f'raw_output_{os.path.basename(file_path)}')
+
+wb = openpyxl.load_workbook(f'raw_output_{os.path.basename(file_path)}')
+ws = wb['Sheet1']
+
+# Set font bold for headers and color for column headers
+header_font = Font(bold=True)
+header_fill = PatternFill(fill_type="solid", fgColor="9ab7e6")
+
+# Add alternating stripes to rows
+stripe_fill_gray = PatternFill(fill_type="solid", fgColor="D3D3D3")  # Light Gray color
+stripe_fill_white = PatternFill(fill_type="solid", fgColor="FFFFFF")  # White color
+
+# Set standard cell borders
+thin_border = Border(
+    left=Side(border_style="thin", color="d3d3d3"),
+    right=Side(border_style="thin", color="d3d3d3"),
+    top=Side(border_style="thin", color="d3d3d3"),
+    bottom=Side(border_style="thin", color="d3d3d3"),
+)
+
+# Dict to store max length of each column
+col_max_length = {}
+
+for row in ws.iter_rows():
+    for cell in row:
+        i = cell.column_letter
+
+        # Calculate max column length without converting int to str
+        if isinstance(cell.value, int):
+            cell_length = len(f"{cell.value}")
+        else:
+            cell_length = len(str(cell.value))
+        
+        if i not in col_max_length:
+            col_max_length[i] = cell_length
+        else:
+            if cell_length > col_max_length[i]:
+                col_max_length[i] = cell_length
+
+        # Apply styles to headers
+        if cell.row == 1:
+            cell.font = header_font
+            cell.fill = header_fill
+        else:
+            # Apply alternating stripes to all other rows
+            fill = stripe_fill_gray if cell.row % 2 == 0 else stripe_fill_white
+            cell.fill = fill
+
+        # Apply borders to all cells
+        cell.border = thin_border
+
+        # Apply Accounting format to all numeric cells
+        if isinstance(cell.value, (int, float)):
+            cell.number_format = '#,##0_);(#,##0)'
+        
+# Adjusting the length of each column
+for i, length in col_max_length.items():
+    ws.column_dimensions[i].width = length + 5
+
+# rename 'Sheet1' to 'Final Output'
+ws.title = 'Final Output'
+
+# save the file as fin_model_{original file name}
+wb.save(f'fin_model_{os.path.basename(file_path)}')
+
+# print that the file has been processed and saved under the name processed_model_{original file name} and show the directory where the new file is 
+print(f'File has been processed and saved under the name fin_model_{os.path.basename(file_path)} in {os.getcwd()}')
