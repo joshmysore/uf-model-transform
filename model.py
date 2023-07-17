@@ -7,6 +7,7 @@ import requests
 from datetime import datetime
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Border, Side
+import tempfile
 
 def get_file_path():
     input('Press Enter to select a file to be read into a dataframe...')
@@ -202,20 +203,29 @@ def create_output_dataframe(data_dict, col_final):
 
 def create_custom_columns(output_df, divisors, new_position, column_definitions):
     for column_definition in column_definitions:
-        output_df = create_and_format_column(
-            df=output_df,
-            new_col_name=column_definition['new_col_name'],
-            codes=column_definition['codes'],
-            divisors=divisors,
-            position=new_position,
-            factor=column_definition.get('factor', 1),
-            rounding=column_definition.get('rounding', 0),
-            subtract_codes=column_definition.get('subtract_codes', None)
-        )
+        if 'codes' in column_definition:
+            # Existing functionality
+            output_df = create_and_format_column(
+                df=output_df,
+                new_col_name=column_definition['new_col_name'],
+                codes=column_definition['codes'],
+                divisors=divisors,
+                position=new_position,
+                factor=column_definition.get('factor', 1),
+                rounding=column_definition.get('rounding', 0),
+                subtract_codes=column_definition.get('subtract_codes', None)
+            )
+        elif 'sum_columns' in column_definition:
+            # New functionality
+            output_df[column_definition['new_col_name']] = output_df[column_definition['sum_columns']].sum(axis=1)
+        elif 'divisor' in column_definition:
+            # Create column from the divisors
+            output_df[column_definition['new_col_name']] = divisors 
     return output_df
 
-def style_and_save_excel(filename):
-    wb = openpyxl.load_workbook(filename)
+
+def style_and_save_excel(temp_filename, final_filename):
+    wb = openpyxl.load_workbook(temp_filename)
     ws = wb['Sheet1']
 
     # Set font bold for headers and color for column headers
@@ -276,136 +286,13 @@ def style_and_save_excel(filename):
     # rename 'Sheet1' to 'Final Output'
     ws.title = 'Final Output'
 
-    # save the file as fin_model_{original file name}
-    wb.save(f'fin_model_{os.path.basename(filename)}')
+    # save the file as UF_model_{original file name}
+    wb.save(f'UF_model_{os.path.basename(final_filename)}')
 
     # print that the file has been processed and saved under the name processed_model_{original file name} and show the directory where the new file is 
-    print(f'File has been processed and saved under the name fin_model_{os.path.basename(filename)} in {os.getcwd()}')
+    print(f'File has been processed and saved under the name UF_model_{os.path.basename(final_filename)} in {os.getcwd()}')
 
 def export_to_excel(output_df, filename):
-    #output excel file transposing the rows and columns
-    output_df.T.to_excel(filename)
-
-    # apply styling and save the excel file
-    style_and_save_excel(filename)
-
-def main():
-    # read dataframe from fucntions defined
-    file_path = get_file_path()
-
-    # load dataframe
-    df = load_dataframe(file_path)
-
-    # find code column
-    code_column, code_prefixes, groups = find_code_column(df)
-
-    # group data by code
-    groups = group_data_by_code(df, code_column, code_prefixes, groups)
-
-    # fetch dates from populate_data_dict
-    dates = []
-    divisors = fetch_exchange_rate(dates)
-
-    # populate data dict
-    data_dict, dates = populate_data_dict(df, code_column, groups[4]["codes"], dates)
-
-    # create output dataframe
-    output_df = create_output_dataframe(data_dict, groups[4]["final"])
-
-    new_position = 0  # specify new_position
-
-    # define column definitions
-    column_definitions = [
-    {
-        'new_col_name': 'OpEx - Marketing',
-        'codes': ['8220-10', '8330-10'],
-        'factor': -1
-    },
-    {
-        'new_col_name': 'OpEx - Repairs & Maintenance',
-        'codes': ['2210-20', '2610-40', '2710-20', '2710-40', '2710-50', '3990-20', '2810-20', '4210-10', '4210-20', '4230-20', '4245-10'],
-        'factor': -1
-    },
-    {
-        'new_col_name': 'OpEx - Office Expenses',
-        'codes': ['1110-40', '1110-50', '3120-10', '3160-10', '3165-10', '3180-30', '4140-10', '4820-10', '5310-10', '95200-15', '5320-10', '5330-10', '5405-10', '5410-20', '5420-10', '5430-10', '5440-10', '5440-95', '5465-10', '5470-10', '5480-10', '5550-10'],
-        'factor': -1
-    },
-    {
-        'new_col_name': 'OpEx - Utilities',
-        'codes': ['4110-10', '4120-10', '4130-10'],
-        'factor': -1
-    },
-    {
-        'new_col_name': 'OpEx - Others',
-        'codes': ['1400-10', '5050-30', '5060-10', '5610-10', '5630-10', '5630-11', '8260-10', '8290-10', '8230-11', '70110-10', '93110-10'],
-        'subtract_codes': ['91010-10', '91050-10'],
-        'factor': -1
-    },
-    {
-        'new_col_name': 'OpEx - Property Management Fee',
-        'codes': ['5215-10'],
-        'factor': -1
-    },
-    {
-        'new_col_name': 'SG&A - Real Estate Taxes',
-        'codes': ['7110-10'],
-        'factor': -1
-    },
-    {
-        'new_col_name': 'SG&A - Insurance',
-        'codes': ['7230-10'],
-        'factor': -1
-    },
-    {
-        'new_col_name': 'SG&A - Leasing Comissions',
-        'codes': ['43310-10', '43330-10', '43350-10', '43021-01', '41310-10', '42051-10', '42480-10', '42510-10', '42515-10', '42560-10', '43013-20', '43021-02', '42030-10', '41130-10', '41347-10', '41350-30', '41320-10', '41347-20', '5050-10'],
-        'factor': -0.025
-    },
-    {
-        'new_col_name': 'Revenues w/ VAT - Residential Leasing',
-        'codes': ['41130-10']
-    },
-    {
-        'new_col_name': 'Revenues w/ VAT - Gain/Loss To Lease',
-        'codes': ['41347-10']
-    },
-    {
-        'new_col_name': 'Revenues w/ VAT - Less: Vacancy Factor',
-        'codes': ['41350-30']
-    },
-    {
-        'new_col_name': 'Revenues w/ VAT - Less: Concessions',
-        'codes': ['41320-10']
-    },
-    {
-        'new_col_name': 'Revenues w/ VAT - Less: Model Units',
-        'codes': ['41347-20']
-    },
-    {
-        'new_col_name': 'Revenues w/ VAT - Less: Credit Losses',
-        'codes': ['5050-10'],
-        'factor': -1
-    },
-    {
-        'new_col_name': 'Revenues w/ VAT - Service Revenues',
-        'codes': ['42030-10']
-    },
-    {
-        'new_col_name': 'Revenues w/o VAT - Residential Parking Income',
-        'codes': ['43310-10', '43330-10', '43350-10']
-    },
-    {
-        'new_col_name': 'Revenues w/o VAT - Storage Income',
-        'codes': ['43021-01']
-    }
-    # Add more column definitions as needed
-]
-    # create custom columns
-    output_df = create_custom_columns(output_df, divisors, new_position, column_definitions)
-
-    # export to excel
-    export_to_excel(output_df, 'output.xlsx')
-
-if __name__ == "__main__":
-    main()
+    with tempfile.NamedTemporaryFile(suffix='.xlsx', delete=True) as temp:
+        output_df.T.to_excel(temp.name, index=True)
+        style_and_save_excel(temp.name, filename)
