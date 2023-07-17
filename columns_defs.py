@@ -6,28 +6,61 @@ column_definitions = [
 {
     'new_col_name': 'OpEx - Payroll',
     'codes': ['1110-10', # Cleaning-Payroll
-                '1110-15', # Cleaning-Contract Service
-                '2110-10', # R&M-Payroll-Salaries
-                '2140-10', # R&M-Payroll-Outside Contract
-                '5110-10', # Administrative-Payroll-Salaries
-                '5120-10', # Administrative-Payroll-Reimbursed-Labor
-                '5140-10', # Administrative-Payroll-Outside Contract
-                '5330-10'], # Other Professional Fees
+              '1110-15', # Cleaning-Contract Service
+              '1110-20', # Cleaning-Extra Service
+              '2110-10', # R&M-Payroll-Salaries
+              '2140-10', # R&M-Payroll-Outside Contract
+              '5110-10', # Administrative-Payroll-Salaries
+              '5120-10', # Administrative-Payroll-Reimbursed-Labor
+              '5140-10', # Administrative-Payroll-Outside Contract
+              '5330-10'], # Other Professional Fees
     'factor': -1
 },
 {
     'new_col_name': 'OpEx - Marketing',
-    'codes': ['8220-10', '8330-10'],
+    'codes': ['8220-10', # Advertising & Promo
+              '8330-10'], # Marketing
     'factor': -1
 },
 {
     'new_col_name': 'OpEx - Repairs & Maintenance',
-    'codes': ['2210-20', '2610-40', '2710-20', '2710-40', '2710-50', '3990-20', '2810-20', '4210-10', '4210-20', '4230-20', '4245-10'],
+    'codes': ['2210-20', # Elevator/Escalator-Service Contracts
+              '2610-40', # Plumbing-Repairs & Maintenance
+              '2710-20', # Fire & Safety-R&M Contract
+              '2710-40', # Fire & Safety-Repairs & Maintenance
+              '2710-50', # Fire & Safety-Supplies & Materials
+              '3990-20', # Repairs And Maintenance
+              '2810-20', # Pest Control-Contract
+              '4210-10', # Landscaping-Gardening Payroll
+              '4210-20', # Landscaping-Gardening Contract
+              '4230-20', # Pool-Service Contract
+              '4245-10'],# Turn-Over--Painting
     'factor': -1
 },
 {
     'new_col_name': 'OpEx - Office Expenses',
-    'codes': ['1110-40', '1110-50', '3120-10', '3160-10', '3165-10', '3180-30', '4140-10', '4820-10', '5310-10', '95200-15', '5320-10', '5330-10', '5405-10', '5410-20', '5420-10', '5430-10', '5440-10', '5440-95', '5465-10', '5470-10', '5480-10', '5550-10'],
+    'codes': ['1110-40', # Cleaning-Repairs&Maintenance
+              '1110-50', # Cleaning-Supplies&Materials
+              '3120-10', # Bldg R&M (Interior)-Lock & Keys
+              '3160-10', # Bldg R&M (Interior)-Supplies & Materials
+           '3165-10', # Bldg R&M (Interior)-Uniforms
+           '3180-30', # Bldg R&M (Interior)-Generator
+           '4140-10', # Telephone
+           '4820-10', # Supplies & Materials
+           '5310-10', # Accounting/Tax
+           '95200-15', # OI&E - Appraisal Fee (category 9)
+           '5320-10', # Legal Fees
+           '5330-10', # Other Professional Fees
+           '5405-10', # Meals & Entertainment
+           '5410-20', # Office Employee Parking
+           '5420-10', # Office Furniture/Equipment Rental
+           '5430-10', # Office Supplies
+           '5440-10', # Office Expense
+           '5440-95', # Telecom/Internet
+           '5465-10', # Credit Card Fee
+           '5470-10', # License, Permit, & Fees
+           '5480-10', # Postage/Messengerial
+           '5550-10'], # Training & Seminar
     'factor': -1
 },
 {
