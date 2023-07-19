@@ -22,8 +22,8 @@ def get_file_path():
         print('Por favor, elija un archivo de Excel.')
         exit()
 
-    # Crear una nueva carpeta llamada "UF_model_{nombre de archivo original}_{fecha actual}"
-    new_folder_name = f'UF_model_{os.path.basename(file_path)}_{datetime.now().strftime("%Y-%d-%m_%H-%M-%S")}'
+    # Crear una nueva carpeta llamada "UF_modelo_{nombre de archivo original}_{fecha actual}"
+    new_folder_name = f'UF_modelo_{os.path.basename(file_path)}_{datetime.now().strftime("%Y-%d-%m_%H-%M-%S")}'
     if not os.path.exists(new_folder_name):
         os.mkdir(new_folder_name)
 
@@ -89,15 +89,15 @@ def group_data_by_code(df, code_column, code_prefixes, groups):
 
 def populate_data_dict(df, code_column, codes, dates):
     data_dict = {}
-    # Iterate over each column
+    # Iterar sobre cada columna
     for col in df.columns:
-        # Iterate over each row in the column
+        # Iterar sobre cada fila en la columna
         for cell in df[col]:
             try:
-                # Try to convert the cell to a datetime
+                # Intentar convertir la celda a un datetime
                 date = pd.to_datetime(cell, format='%b %Y', errors='coerce')
 
-                # If the cell is a date
+                # Si la celda es una fecha
                 if pd.notnull(date):
                     date_str = cell
                     dates.append(date_str)
@@ -105,74 +105,113 @@ def populate_data_dict(df, code_column, codes, dates):
                     
 
                     for code in codes:
-                        # Get the row where the code matches in the original DataFrame
+                        # Obtener la fila donde el código coincide en el DataFrame original
                         row = df[df[code_column] == code]
 
-                        # If there's any matching row, get the corresponding value from the row with code
+                        # Si hay alguna fila coincidente, obtener el valor correspondiente de la fila con el código
                         if not row.empty:
                             value = row.iat[0, df.columns.get_loc(col)]
                             data_dict[date_str][code] = value
 
-                    # Exit inner loop once the first date is found in the column
+                    # Salir del bucle interno una vez que se encuentra la primera fecha en la columna
                     break
             except ValueError:
-                # If the cell couldn't be converted to a date, continue to the next cell
+                # Si la celda no pudo ser convertida a una fecha, continuar a la siguiente celda
                 continue
     return data_dict, dates
 
 def fetch_exchange_rate(dates):
     try:
-        # if server isn't down
+        # si el servidor no está caído
         url = 'https://www.alphavantage.co/query?function=FX_MONTHLY&from_symbol=CLF&to_symbol=CLP&apikey=5TLIDN7TN6IQZJUE'
         r = requests.get(url)
         data = r.json()
 
-        # If there is an error message in the response, return default divisors
+        # Si hay un mensaje de error en la respuesta, devolver divisores por defecto
         if 'Error Message' in data:
-            print("Server is down. Using default divisors.")
-            logging.info('Server is down. Using default divisors.')
+            print("El servidor está caído. Usando divisores por defecto.")
+            logging.info('El servidor está caído. Usando divisores por defecto.')
             return [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
-        # Extract the monthly exchange rate data from the response
+        # Extraer los datos de la tasa de cambio mensual de la respuesta
         monthly_rates = data['Time Series FX (Monthly)']
 
-        # List to store the exchange rates
+        # Lista para almacenar las tasas de cambio
         exchange_rates = []
 
-        # Iterate over the monthly data and extract the exchange rates
+        # Iterar sobre los datos mensuales y extraer las tasas de cambio
         for date, rate in monthly_rates.items():
-            # Convert the date string to a datetime object
+            # Convertir la cadena de la fecha a un objeto datetime
             date_obj = datetime.strptime(date, '%Y-%m-%d')
-            # Format the date as "Month Year" (e.g., "Jun 2022")
+            # Formatear la fecha como "Mes Año" (por ejemplo, "Jun 2022")
             month_year = date_obj.strftime('%b %Y')
 
-            # Check if the month/year is in the dates list
+            # Comprobar si el mes/año está en la lista de fechas
             if month_year in dates:
                 exchange_rate = rate['4. close']
                 exchange_rates.append((month_year, exchange_rate))
 
-        # Sort the exchange rates based on the month/year in ascending order
+        # Ordenar las tasas de cambio basándose en el mes/año en orden ascendente
         exchange_rates.sort(key=lambda x: datetime.strptime(x[0], '%b %Y'))
 
-        # Extract the exchange rates from the list of tuples
+        # Extraer las tasas de cambio de la lista de tuplas
         divisors_UF = [x[1] for x in exchange_rates]
 
-        # Convert the exchange rates to floats
+        # Convertir las tasas de cambio a flotantes
         divisors_UF = [float(x) for x in divisors_UF]
 
-        print("Successfully fetched data from the server.")
-        logging.info('Successfully fetched data from the server.')
+        print("Se ha obtenido con éxito los datos del servidor.")
+        logging.info('Se ha obtenido con éxito los datos del servidor.')
         return divisors_UF
 
     except Exception as e:
-        print(f'Error fetching exchange rate: {e}')
-        print("Using default divisors due to the error.")
-        logging.info(f'Error fetching exchange rate: {e}')
-        logging.info('Using default divisors due to the error.')
-        # In case of any other unhandled exception, return default divisors
+        print(f'Error al obtener la tasa de cambio: {e}')
+        print("Usando divisores por defecto debido al error.")
+        logging.info(f'Error al obtener la tasa de cambio: {e}')
+        logging.info('Usando divisores por defecto debido al error.')
+        # En caso de cualquier otra excepción no manejada, devolver divisores por defecto
         return [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
 def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0, position=None, factor=1., subtract_codes=None):
+    subtract_cols = []
+    cols_to_sum = [col for col in df.columns if any(code in col for code in codes)]
+    logging.info(f'Columnas para ser sumadas para {new_col_name}: {cols_to_sum}') 
+
+    if subtract_codes is not None:
+        subtract_cols = [col for col in df.columns if any(code in col for code in subtract_codes)]
+        for col in subtract_cols:
+            if col in cols_to_sum:  # comprobar si la columna está en cols_to_sum antes de remover
+                cols_to_sum.remove(col)  
+
+    logging.info(f'Columnas para ser restadas para {new_col_name}: {subtract_cols}')
+    # print(f'{new_col_name}: {cols_to_sum}')  # Línea de depuración
+    # print(f'Columnas para ser restadas para {new_col_name}: {subtract_cols}')  # Línea de depuración
+
+    df[new_col_name] = df[cols_to_sum].sum(axis=1)
+    df[new_col_name] -= df[subtract_cols].sum(axis=1)
+
+    if divisors is not None:
+        # print(f'Divisores para {new_col_name}: {divisors}')  # Línea de depuración
+        for i, divisor in enumerate(divisors):
+            df.loc[df.index[i], new_col_name] = df.loc[df.index[i], new_col_name] / divisor
+
+    logging.info(f'Se aplican los divisores ({divisors}) a la columna.')
+
+    if factor != 1.:
+        df[new_col_name] *= factor
+
+    if rounding is not None:
+        df[new_col_name] = df[new_col_name].round(rounding)
+
+    if position is not None:
+        cols = df.columns.tolist()
+        cols.insert(position, cols.pop(cols.index(new_col_name)))
+        df = df.reindex(columns=cols)
+
+    # print(f'Datos para {new_col_name}: {df[new_col_name]}')  # Línea de depuración
+    logging.info(f'Datos para {new_col_name}: {df[new_col_name]}')
+
+    return df
     subtract_cols = []
     cols_to_sum = [col for col in df.columns if any(code in col for code in codes)]
     logging.info(f'Columns to be summed for {new_col_name}: {cols_to_sum}') 
@@ -214,42 +253,42 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0,
     return df
 
 def create_output_dataframe(data_dict, col_final):
-    # Create a DataFrame with the collected dates as rows and the columns from codes
+    # Crear un DataFrame con las fechas recogidas como filas y las columnas de los códigos
     output_df = pd.DataFrame(data_dict).T
 
-    # Rename the columns to the final names
+    # Cambiar el nombre de las columnas a los nombres finales
     output_df.columns = col_final
 
-    # delete all columns that do not have only have a header and then no data
+    # Eliminar todas las columnas que solo tienen un encabezado y luego no tienen datos
     output_df = output_df.dropna(axis=1, how='all')
 
-    # delete all columns with the word "total" in the name
+    # Eliminar todas las columnas con la palabra "total" en el nombre
     output_df = output_df[output_df.columns.drop(list(output_df.filter(regex='Total')))]
 
-    # Create a list of tuples where each tuple is (original_column_name, code)
+    # Crear una lista de tuplas donde cada tupla es (nombre_columna_original, código)
     column_tuples = [(col, col.split(':')[0]) for col in output_df.columns.tolist()]
 
-    # Sort this list based on the entire code
+    # Ordenar esta lista en base al código completo
     column_tuples.sort(key=lambda x: int(x[1].split('-')[0] + x[1].split('-')[1]))
 
-    # Extract the sorted list of original column names
+    # Extraer la lista ordenada de nombres de columnas originales
     sorted_columns = [col[0] for col in column_tuples]
 
-    # Rearrange the columns in the dataframe
+    # Reorganizar las columnas en el dataframe
     output_df = output_df[sorted_columns]
 
     return output_df
 
 def create_custom_columns(output_df, divisors, new_position, column_definitions):
-    logging.info('By this point, dates have populated the data_dict and the output_df has been created.')
-    logging.info('Columns have been renamed to the final names.')
-    logging.info('Columns with only a header and no data have been deleted.')
-    logging.info('Columns with the word "total" in the name have been deleted.')
-    logging.info('Columns have been sorted based on the entire code.')
-    logging.info('Columns have been rearranged in the dataframe.')
+    logging.info('Hasta este punto, las fechas han poblado el data_dict y el output_df ha sido creado.')
+    logging.info('Las columnas han sido renombradas a los nombres finales.')
+    logging.info('Las columnas que solo tienen un encabezado y no tienen datos han sido eliminadas.')
+    logging.info('Las columnas con la palabra "total" en el nombre han sido eliminadas.')
+    logging.info('Las columnas han sido ordenadas en base al código completo.')
+    logging.info('Las columnas han sido reorganizadas en el dataframe.')
     for column_definition in column_definitions:
         if 'codes' in column_definition:
-            # Existing functionality
+            # Funcionalidad existente
             output_df = create_and_format_column(
                 df=output_df,
                 new_col_name=column_definition['new_col_name'],
@@ -261,28 +300,28 @@ def create_custom_columns(output_df, divisors, new_position, column_definitions)
                 subtract_codes=column_definition.get('subtract_codes', None)
             )
         elif 'sum_columns' in column_definition:
-            # New functionality
+            # Nueva funcionalidad
             output_df[column_definition['new_col_name']] = output_df[column_definition['sum_columns']].sum(axis=1)
         elif 'divisor' in column_definition:
-            # Create column from the divisors
+            # Crear columna a partir de los divisores
             output_df[column_definition['new_col_name']] = divisors 
 
-    logging.info(f'Custom columns have been created.')
+    logging.info('Se han creado columnas personalizadas.')
     return output_df
 
 def style_and_save_excel(temp_filename, final_filename):
     wb = openpyxl.load_workbook(temp_filename)
     ws = wb['Sheet1']
 
-    # Set font bold for headers and color for column headers
+    # Establecer negrita para encabezados y color para encabezados de columnas
     header_font = Font(bold=True)
     header_fill = PatternFill(fill_type="solid", fgColor="9ab7e6")
 
-    # Add alternating stripes to rows
-    stripe_fill_gray = PatternFill(fill_type="solid", fgColor="D3D3D3")  # Light Gray color
-    stripe_fill_white = PatternFill(fill_type="solid", fgColor="FFFFFF")  # White color
+    # Añadir franjas alternas a las filas
+    stripe_fill_gray = PatternFill(fill_type="solid", fgColor="D3D3D3")  # Color gris claro
+    stripe_fill_white = PatternFill(fill_type="solid", fgColor="FFFFFF")  # Color blanco
 
-    # Set standard cell borders
+    # Establecer bordes de celda estándar
     thin_border = Border(
         left=Side(border_style="thin", color="d3d3d3"),
         right=Side(border_style="thin", color="d3d3d3"),
@@ -290,16 +329,16 @@ def style_and_save_excel(temp_filename, final_filename):
         bottom=Side(border_style="thin", color="d3d3d3"),
     )
 
-    logging.info(f'Styles have been set for border, stripes, and headers)')
+    logging.info('Se han establecido estilos para bordes, franjas y encabezados')
 
-    # Dict to store max length of each column
+    # Dict para almacenar la longitud máxima de cada columna
     col_max_length = {}
 
     for row in ws.iter_rows():
         for cell in row:
             i = cell.column_letter
 
-            # Calculate max column length without converting int to str
+            # Calcular la longitud máxima de la columna sin convertir int a str
             if isinstance(cell.value, int):
                 cell_length = len(f"{cell.value}")
             else:
@@ -311,37 +350,40 @@ def style_and_save_excel(temp_filename, final_filename):
                 if cell_length > col_max_length[i]:
                     col_max_length[i] = cell_length
 
-            # Apply styles to headers
+            # Aplicar estilos a los encabezados
             if cell.row == 1:
                 cell.font = header_font
                 cell.fill = header_fill
             else:
-                # Apply alternating stripes to all other rows
+                # Aplicar franjas alternas a todas las demás filas
                 fill = stripe_fill_gray if cell.row % 2 == 0 else stripe_fill_white
                 cell.fill = fill
 
-            # Apply borders to all cells
+            # Aplicar bordes a todas las celdas
             cell.border = thin_border
 
-            # Apply Accounting format to all numeric cells
+            # Aplicar formato de contabilidad a todas las celdas numéricas
             if isinstance(cell.value, (int, float)):
                 cell.number_format = '#,##0_);(#,##0)'
 
-    logging.info(f'Styles have been applied to the excel file.') 
+    logging.info('Se han aplicado estilos al archivo de Excel.') 
 
-    # Adjusting the length of each column
+    # Ajustar la longitud de cada columna
     for i, length in col_max_length.items():
         ws.column_dimensions[i].width = length + 5
 
-    # rename 'Sheet1' to 'Final Output'
-    ws.title = 'Final Output'
+    # Renombrar 'Sheet1' a 'Salida Final'
+    ws.title = 'Salida Final'
 
-    # save the file as UF_model_{original file name}
-    wb.save(f'UF_model_{os.path.basename(final_filename)}')
+    # Guardar el archivo como UF_modelo_{nombre del archivo original}
+    wb.save(f'UF_modelo_{os.path.basename(final_filename)}')
 
-    logging.info(f'File has been saved as UF_model_{os.path.basename(final_filename)} in {os.getcwd()}')
-    # print that the file has been processed and saved under the name processed_model_{original file name} and show the directory where the new file is 
-    print(f'File has been processed and saved under the name UF_model_{os.path.basename(final_filename)} in {os.getcwd()}')
+    logging.info(f'El archivo ha sido guardado como UF_modelo_{os.path.basename(final_filename)} en {os.getcwd()}')
+    
+    # Imprimir que el archivo ha sido procesado y guardado bajo el nombre UF_modelo_{nombre del archivo original} y mostrar el directorio donde está el nuevo archivo 
+    print(f'El archivo ha sido procesado y guardado bajo el nombre UF_modelo_{os.path.basename(final_filename)} en {os.getcwd()}')
+    wb = openpyxl.load_workbook(temp_filename)
+    ws = wb['Sheet1']
 
 def export_to_excel(output_df, filename):
     with tempfile.NamedTemporaryFile(suffix='.xlsx', delete=True) as temp:
