@@ -75,7 +75,7 @@ column_definitions = [
     'codes': ['1400-10', # Miscellaneous - Covid19
               '5050-30', # Non Creditable Vat
               '5060-10', # Late Fees
-              '5610-10', # Travel - General
+              '5610-10', # Travel - General (Employee Expenses)
               '5630-10', # Auto Expense, Parking & Mileage
               '5630-11', # Non-Deductible Reimbursements
               '8260-10', # Tenant Activity/Relations
@@ -151,7 +151,7 @@ column_definitions = [
 },
 {
     'new_col_name': 'Revenues w/ VAT - Less: Vacancy Factor',
-    'codes': ['41350-30'], # REV - Rent Vacancy
+    'codes': ['41350-30'], # REV - Rent Vacancy - Residential
 },
 {
     'new_col_name': 'Revenues w/ VAT - Less: Concessions',
