@@ -1,4 +1,4 @@
-# Import all needed libraries
+# Importar todas las bibliotecas necesarias
 import pandas as pd
 import tkinter as tk
 from tkinter import filedialog
@@ -12,67 +12,67 @@ import logging
 
 
 def get_file_path():
-    input('Press Enter to select a file to be read into a dataframe...')
+    input('Presione Enter para seleccionar un archivo para leer en un dataframe...')
     root = tk.Tk()
     root.withdraw()
     file_path = filedialog.askopenfilename()
 
-    # Ensure the file chosen is an excel file that can be processed
+    # Asegurarse de que el archivo seleccionado sea un archivo de Excel que pueda ser procesado
     if not file_path.endswith('.xlsx'):
-        print('Please choose an excel file.')
+        print('Por favor, elija un archivo de Excel.')
         exit()
 
-    # Create a new folder called "UF_model_{original file name}_{current date}"
+    # Crear una nueva carpeta llamada "UF_model_{nombre de archivo original}_{fecha actual}"
     new_folder_name = f'UF_model_{os.path.basename(file_path)}_{datetime.now().strftime("%Y-%d-%m_%H-%M-%S")}'
     if not os.path.exists(new_folder_name):
         os.mkdir(new_folder_name)
 
-    # Change the current working directory to the new folder
+    # Cambiar el directorio de trabajo actual a la nueva carpeta
     os.chdir(new_folder_name)
 
-    # Setup logging
+    # Configuración del logging
     log_file_name = f'log_{os.path.basename(file_path)}_{datetime.now().strftime("%Y-%d-%m_%H-%M-%S")}.log'
     logging.basicConfig(filename=log_file_name, level=logging.INFO, 
                         format='%(asctime)s %(levelname)s %(message)s', 
                         datefmt='%m/%d/%Y %I:%M:%S %p',
                         )
     
-    logging.info('Started get_file_path function')
+    logging.info('Inició la función get_file_path')
 
-    # dialogue message confirming the file has been chosen and read
-    print(f'File {os.path.basename(file_path)} has been read into a dataframe.')
-    logging.info(f'File {os.path.basename(file_path)} has been read into a dataframe.')
+    # Mensaje de diálogo confirmando que el archivo ha sido seleccionado y leído
+    print(f'El archivo {os.path.basename(file_path)} ha sido leído en un dataframe.')
+    logging.info(f'El archivo {os.path.basename(file_path)} ha sido leído en un dataframe.')
 
     return file_path
 
 def load_dataframe(file_path):
-    logging.info(f'Loading dataframe from {file_path}')
+    logging.info(f'Cargando dataframe desde {file_path}')
     return pd.read_excel(file_path)
 
 def find_code_column(df):
     code_column = None
     code_prefixes = [(4, 'REV'), (5, 'RE'), (6, 'NRE'), (7, 'C&GE'), (8, 'OI&E'), (9, 'OI&E')]
     groups = {i: {"codes": [], "names": [], "final": [], "prefix": prefix} for i, prefix in code_prefixes}
-    logging.info(f'Code prefixes have been created based on first digit of code: {code_prefixes}.')
-    logging.info(f'Groups have been created based on code prefixes: {groups}.')
+    logging.info(f'Se han creado los prefijos de código basados en el primer dígito del código: {code_prefixes}.')
+    logging.info(f'Se han creado grupos basados en los prefijos de código: {groups}.')
 
-    # Find the column that contains codes based on revenue code
+    # Encontrar la columna que contiene los códigos basándose en el código de ingresos
     for col in df.columns:
         if '40100-00' in df[col].values:
             code_column = col
             break
-    logging.info(f'Code column has been found.')
+    logging.info('Se ha encontrado la columna de código.')
     return code_column, code_prefixes, groups
 
 def group_data_by_code(df, code_column, code_prefixes, groups):
     if code_column is None:
-        print("Could not find revenue column.")
-        logging.info('Could not find revenue column.')
+        print("No se pudo encontrar la columna de ingresos.")
+        logging.info('No se pudo encontrar la columna de ingresos.')
     else:
         name_column = df.columns[df.columns.get_loc(code_column) + 1]
-        logging.info(f'Created name_column based on position of code_column.')
+        logging.info(f'Se ha creado la columna de nombres basada en la posición de la columna de códigos.')
 
-        # For each group, filter rows based on the code, create a dictionary and populate the lists
+        # Para cada grupo, filtrar las filas basándose en el código, crear un diccionario y poblar las listas
         for i, prefix in code_prefixes:
             group_rows = df[(df[code_column] >= f'{i}0000-00') & (df[code_column] <= f'{i}9999-99')]
             group_data = {(code, f"{prefix} - " + group_rows.loc[group_rows[code_column] == code, name_column].values[0].strip().title()): [] for code in group_rows[code_column]}      
@@ -81,9 +81,9 @@ def group_data_by_code(df, code_column, code_prefixes, groups):
                 groups[i]["names"].append(name)
                 groups[i]["final"].append(code + ": " + name)
 
-        logging.info(f'Groups have been populated for group based on code prefix.')
-        logging.info(f'Group rows have been created for group based on code prefix.')
-        logging.info(f'Group data has been created for group based on code prefix.')  
+        logging.info('Se han poblado los grupos para el grupo basado en el prefijo del código.')
+        logging.info('Se han creado las filas de grupo para el grupo basado en el prefijo del código.')
+        logging.info('Se han creado los datos del grupo para el grupo basado en el prefijo del código.')
 
     return groups
 
