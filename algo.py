@@ -22,10 +22,10 @@ def main():
     # Initialize an empty DataFrame
     output_df = pd.DataFrame()
 
-    group_keys = sorted(groups.keys(), reverse=True)  # sort keys in reverse order
+    # reverse the order of the groups to print in correct order on the spreadsheet
+    group_keys = sorted(groups.keys(), reverse=True)
 
     for group_key in group_keys:
-        print(f'Processing group: {group_key}')  # print the group number to check its contents
         data_dict, dates = populate_data_dict(df, code_column, groups[group_key]["codes"], dates)
         temp_df = create_output_dataframe(data_dict, groups[group_key]["final"])
         # Merge temp_df with output_df here

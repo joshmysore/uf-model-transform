@@ -8,6 +8,8 @@ from datetime import datetime
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Border, Side
 import tempfile
+import logging
+
 
 def get_file_path():
     input('Press Enter to select a file to be read into a dataframe...')
@@ -20,41 +22,68 @@ def get_file_path():
         print('Please choose an excel file.')
         exit()
 
-    # print dialogue message confirming the file has been chosen and read
+    # Create a new folder called "UF_model_{original file name}_{current date}"
+    new_folder_name = f'UF_model_{os.path.basename(file_path)}_{datetime.now().strftime("%Y-%d-%m_%H-%M-%S")}'
+    if not os.path.exists(new_folder_name):
+        os.mkdir(new_folder_name)
+
+    # Change the current working directory to the new folder
+    os.chdir(new_folder_name)
+
+    # Setup logging
+    log_file_name = f'log_{os.path.basename(file_path)}_{datetime.now().strftime("%Y-%d-%m_%H-%M-%S")}.log'
+    logging.basicConfig(filename=log_file_name, level=logging.INFO, 
+                        format='%(asctime)s %(levelname)s %(message)s', 
+                        datefmt='%m/%d/%Y %I:%M:%S %p',
+                        )
+    
+    logging.info('Started get_file_path function')
+
+    # dialogue message confirming the file has been chosen and read
     print(f'File {os.path.basename(file_path)} has been read into a dataframe.')
+    logging.info(f'File {os.path.basename(file_path)} has been read into a dataframe.')
+
     return file_path
 
 def load_dataframe(file_path):
+    logging.info(f'Loading dataframe from {file_path}')
     return pd.read_excel(file_path)
 
 def find_code_column(df):
     code_column = None
     code_prefixes = [(4, 'REV'), (5, 'RE'), (6, 'NRE'), (7, 'C&GE'), (8, 'OI&E'), (9, 'OI&E')]
     groups = {i: {"codes": [], "names": [], "final": [], "prefix": prefix} for i, prefix in code_prefixes}
+    logging.info(f'Code prefixes have been created based on first digit of code: {code_prefixes}.')
+    logging.info(f'Groups have been created based on code prefixes: {groups}.')
 
     # Find the column that contains codes based on revenue code
     for col in df.columns:
         if '40100-00' in df[col].values:
             code_column = col
             break
-
+    logging.info(f'Code column has been found.')
     return code_column, code_prefixes, groups
 
 def group_data_by_code(df, code_column, code_prefixes, groups):
     if code_column is None:
         print("Could not find revenue column.")
+        logging.info('Could not find revenue column.')
     else:
         name_column = df.columns[df.columns.get_loc(code_column) + 1]
+        logging.info(f'Created name_column based on position of code_column.')
 
         # For each group, filter rows based on the code, create a dictionary and populate the lists
         for i, prefix in code_prefixes:
             group_rows = df[(df[code_column] >= f'{i}0000-00') & (df[code_column] <= f'{i}9999-99')]
-            group_data = {(code, f"{prefix} - " + group_rows.loc[group_rows[code_column] == code, name_column].values[0].strip().title()): [] for code in group_rows[code_column]}
-            
+            group_data = {(code, f"{prefix} - " + group_rows.loc[group_rows[code_column] == code, name_column].values[0].strip().title()): [] for code in group_rows[code_column]}      
             for (code, name), data in group_data.items():
                 groups[i]["codes"].append(code)
                 groups[i]["names"].append(name)
                 groups[i]["final"].append(code + ": " + name)
+
+        logging.info(f'Groups have been populated for group based on code prefix.')
+        logging.info(f'Group rows have been created for group based on code prefix.')
+        logging.info(f'Group data has been created for group based on code prefix.')  
 
     return groups
 
@@ -73,6 +102,7 @@ def populate_data_dict(df, code_column, codes, dates):
                     date_str = cell
                     dates.append(date_str)
                     data_dict[date_str] = {}
+                    
 
                     for code in codes:
                         # Get the row where the code matches in the original DataFrame
@@ -100,6 +130,7 @@ def fetch_exchange_rate(dates):
         # If there is an error message in the response, return default divisors
         if 'Error Message' in data:
             print("Server is down. Using default divisors.")
+            logging.info('Server is down. Using default divisors.')
             return [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
         # Extract the monthly exchange rate data from the response
@@ -130,17 +161,21 @@ def fetch_exchange_rate(dates):
         divisors_UF = [float(x) for x in divisors_UF]
 
         print("Successfully fetched data from the server.")
+        logging.info('Successfully fetched data from the server.')
         return divisors_UF
 
     except Exception as e:
         print(f'Error fetching exchange rate: {e}')
         print("Using default divisors due to the error.")
+        logging.info(f'Error fetching exchange rate: {e}')
+        logging.info('Using default divisors due to the error.')
         # In case of any other unhandled exception, return default divisors
         return [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
 def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0, position=None, factor=1., subtract_codes=None):
     subtract_cols = []
     cols_to_sum = [col for col in df.columns if any(code in col for code in codes)]
+    logging.info(f'Columns to be summed for {new_col_name}: {cols_to_sum}') 
 
     if subtract_codes is not None:
         subtract_cols = [col for col in df.columns if any(code in col for code in subtract_codes)]
@@ -148,6 +183,7 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0,
             if col in cols_to_sum:  # check if column is in cols_to_sum before removing
                 cols_to_sum.remove(col)  
 
+    logging.info(f'Columns to be subtracted for {new_col_name}: {subtract_cols}')
     # print(f'{new_col_name}: {cols_to_sum}')  # Debug line
     # print(f'Columns to be subtracted for {new_col_name}: {subtract_cols}')  # Debug line
 
@@ -158,6 +194,8 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0,
         # print(f'Divisors for {new_col_name}: {divisors}')  # Debug line
         for i, divisor in enumerate(divisors):
             df.loc[df.index[i], new_col_name] = df.loc[df.index[i], new_col_name] / divisor
+
+    logging.info(f'Divisors ({divisors}) are applied to the column.')
 
     if factor != 1.:
         df[new_col_name] *= factor
@@ -171,6 +209,7 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0,
         df = df.reindex(columns=cols)
 
     # print(f'Data for {new_col_name}: {df[new_col_name]}')  # Debug line
+    logging.info(f'Data for {new_col_name}: {df[new_col_name]}')
 
     return df
 
@@ -198,10 +237,16 @@ def create_output_dataframe(data_dict, col_final):
 
     # Rearrange the columns in the dataframe
     output_df = output_df[sorted_columns]
-    
+
     return output_df
 
 def create_custom_columns(output_df, divisors, new_position, column_definitions):
+    logging.info('By this point, dates have populated the data_dict and the output_df has been created.')
+    logging.info('Columns have been renamed to the final names.')
+    logging.info('Columns with only a header and no data have been deleted.')
+    logging.info('Columns with the word "total" in the name have been deleted.')
+    logging.info('Columns have been sorted based on the entire code.')
+    logging.info('Columns have been rearranged in the dataframe.')
     for column_definition in column_definitions:
         if 'codes' in column_definition:
             # Existing functionality
@@ -221,8 +266,9 @@ def create_custom_columns(output_df, divisors, new_position, column_definitions)
         elif 'divisor' in column_definition:
             # Create column from the divisors
             output_df[column_definition['new_col_name']] = divisors 
-    return output_df
 
+    logging.info(f'Custom columns have been created.')
+    return output_df
 
 def style_and_save_excel(temp_filename, final_filename):
     wb = openpyxl.load_workbook(temp_filename)
@@ -243,6 +289,8 @@ def style_and_save_excel(temp_filename, final_filename):
         top=Side(border_style="thin", color="d3d3d3"),
         bottom=Side(border_style="thin", color="d3d3d3"),
     )
+
+    logging.info(f'Styles have been set for border, stripes, and headers)')
 
     # Dict to store max length of each column
     col_max_length = {}
@@ -278,7 +326,9 @@ def style_and_save_excel(temp_filename, final_filename):
             # Apply Accounting format to all numeric cells
             if isinstance(cell.value, (int, float)):
                 cell.number_format = '#,##0_);(#,##0)'
-            
+
+    logging.info(f'Styles have been applied to the excel file.') 
+
     # Adjusting the length of each column
     for i, length in col_max_length.items():
         ws.column_dimensions[i].width = length + 5
@@ -289,6 +339,7 @@ def style_and_save_excel(temp_filename, final_filename):
     # save the file as UF_model_{original file name}
     wb.save(f'UF_model_{os.path.basename(final_filename)}')
 
+    logging.info(f'File has been saved as UF_model_{os.path.basename(final_filename)} in {os.getcwd()}')
     # print that the file has been processed and saved under the name processed_model_{original file name} and show the directory where the new file is 
     print(f'File has been processed and saved under the name UF_model_{os.path.basename(final_filename)} in {os.getcwd()}')
 
