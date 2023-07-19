@@ -183,8 +183,8 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0,
                 cols_to_sum.remove(col)  
 
     logging.info(f'Columnas para ser restadas para {new_col_name}: {subtract_cols}')
-    # print(f'{new_col_name}: {cols_to_sum}')  # Línea de depuración
-    # print(f'Columnas para ser restadas para {new_col_name}: {subtract_cols}')  # Línea de depuración
+    print(f'Columnas para ser sumadas para {new_col_name}: {cols_to_sum}')  # Línea de depuración
+    print(f'Columnas para ser restadas para {new_col_name}: {subtract_cols}')  # Línea de depuración
 
     df[new_col_name] = df[cols_to_sum].sum(axis=1)
     df[new_col_name] -= df[subtract_cols].sum(axis=1)
