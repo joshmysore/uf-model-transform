@@ -1,6 +1,6 @@
 import pandas as pd
-from model import *
-from columns_defs import *
+from functions import *
+from new_columns import *
 
 def main():
     # leer dataframe desde las funciones definidas

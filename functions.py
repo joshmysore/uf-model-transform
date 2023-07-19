@@ -10,7 +10,6 @@ from openpyxl.styles import Font, PatternFill, Border, Side
 import tempfile
 import logging
 
-
 def get_file_path():
     input('Presione Enter para seleccionar un archivo para leer en un dataframe...')
     root = tk.Tk()
