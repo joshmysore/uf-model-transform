@@ -60,7 +60,7 @@ def find_code_column(df):
         if '40100-00' in df[col].values:
             code_column = col
             break
-    logging.info('Se ha encontrado la columna de código.')
+    logging.info(f'Se ha encontrado la columna de código: {code_column}')
     return code_column, code_prefixes, groups
 
 def group_data_by_code(df, code_column, code_prefixes, groups):
@@ -74,7 +74,9 @@ def group_data_by_code(df, code_column, code_prefixes, groups):
         # Para cada grupo, filtrar las filas basándose en el código, crear un diccionario y poblar las listas
         for i, prefix in code_prefixes:
             group_rows = df[(df[code_column] >= f'{i}0000-00') & (df[code_column] <= f'{i}9999-99')]
-            group_data = {(code, f"{prefix} - " + group_rows.loc[group_rows[code_column] == code, name_column].values[0].strip().title()): [] for code in group_rows[code_column]}      
+            group_data = {(code, f"{prefix} - " + group_rows.loc[group_rows[code_column] == code, name_column].values[0].strip().title()): [] for code in group_rows[code_column]}  
+
+                
             for (code, name), data in group_data.items():
                 groups[i]["codes"].append(code)
                 groups[i]["names"].append(name)
