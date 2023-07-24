@@ -58,7 +58,6 @@ def find_code_column(df):
     logging.info(f'Se han creado los prefijos de código basados en el primer dígito del código: {code_prefixes}.')
     print(f'Se han creado los prefijos de código basados en el primer dígito del código.')
     logging.info(f'Se han creado grupos basados en los prefijos de código: {groups}.')
-    print(f'Se han creado los prefijos de código basados en el primer dígito del código.')
 
     # Encontrar la columna que contiene los códigos basándose en el código de ingresos
     for col in df.columns:
