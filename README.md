@@ -20,7 +20,7 @@ Esta es una descripción detallada de cada función en los archivos proporcionad
 
 5. `populate_data_dict(df, code_column, codes, dates)`: Esta función llena un diccionario de datos con fechas como claves y diccionarios anidados como valores. Los diccionarios anidados contienen códigos como claves y valores correspondientes del DataFrame original como valores.
 
-6. `fetch_exchange_rate(dates)`: Esta función obtiene las tasas de cambio mensuales desde un servidor externo y las devuelve como una lista de divisores. Si el servidor está caído, devuelve una lista de divisores por defecto.
+6. `fetch_exchange_rate(dates)`: Esta función obtiene las tasas de cambio mensuales desde un servidor externo (AlphaVantage) y las devuelve como una lista de divisores según los meses del archivo subido. Hay la opción de eligir si se quieren usar las tasas de AlphaVantage o no. En el caso de que se elija sí, si el servidor está caído, devuelve la lista de divisores por defecto (una lista de solo el número uno).
 
 7. `create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0, position=None, factor=1., subtract_codes=None)`: Esta función crea y formatea una nueva columna en el DataFrame a partir de la suma de las columnas especificadas en 'codes', y resta las columnas especificadas en 'subtract_codes'. Además, aplica los divisores a los valores de la columna, multiplica los valores por un factor, redondea los valores y coloca la columna en una posición específica en el DataFrame.
 
