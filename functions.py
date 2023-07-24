@@ -1,7 +1,7 @@
 # Importar todas las bibliotecas necesarias
 import pandas as pd
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 import os
 import requests
 from datetime import datetime
@@ -131,58 +131,73 @@ def populate_data_dict(df, code_column, codes, dates):
     return data_dict, dates
 
 def fetch_exchange_rate(dates):
-    try:
-        # si el servidor no está caído
-        url = 'https://www.alphavantage.co/query?function=FX_MONTHLY&from_symbol=CLF&to_symbol=CLP&apikey=5TLIDN7TN6IQZJUE'
-        r = requests.get(url)
-        data = r.json()
+    # Crear una ventana emergente para preguntar al usuario si quiere usar la tasa de cambio de AlphaVantage
+    root = tk.Tk()
+    # Ocultar la ventana principal
+    root.withdraw() 
 
-        # Si hay un mensaje de error en la respuesta, devolver divisores por defecto
-        if 'Error Message' in data:
-            print("El servidor está caído. Usando divisores por defecto.")
-            logging.info('El servidor está caído. Usando divisores por defecto.')
-            return [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-
-        # Extraer los datos de la tasa de cambio mensual de la respuesta
-        monthly_rates = data['Time Series FX (Monthly)']
-
-        # Lista para almacenar las tasas de cambio
-        exchange_rates = []
-
-        # Iterar sobre los datos mensuales y extraer las tasas de cambio
-        for date, rate in monthly_rates.items():
-            # Convertir la cadena de la fecha a un objeto datetime
-            date_obj = datetime.strptime(date, '%Y-%m-%d')
-            # Formatear la fecha como "Mes Año" (por ejemplo, "Jun 2022")
-            month_year = date_obj.strftime('%b %Y')
-
-            # Comprobar si el mes/año está en la lista de fechas
-            if month_year in dates:
-                exchange_rate = rate['4. close']
-                exchange_rates.append((month_year, exchange_rate))
-
-        # Ordenar las tasas de cambio basándose en el mes/año en orden ascendente
-        exchange_rates.sort(key=lambda x: datetime.strptime(x[0], '%b %Y'))
-
-        # Extraer las tasas de cambio de la lista de tuplas
-        divisors_UF = [x[1] for x in exchange_rates]
-
-        # Convertir las tasas de cambio a flotantes
-        divisors_UF = [float(x) for x in divisors_UF]
-
-        print("Se han obtenido con éxito los datos del servidor.")
-        logging.info('Se han obtenido con éxito los datos del servidor.')
-        print(f'Divisores: {divisors_UF}')
-        logging.info(f'Divisores: {divisors_UF}')
-        return divisors_UF
-
-    except Exception as e:
-        print(f'Error al obtener la tasa de cambio: {e}')
-        print("Usando divisores por defecto debido al error.")
-        logging.info(f'Error al obtener la tasa de cambio: {e}')
-        logging.info('Usando divisores por defecto debido al error.')
-        # En caso de cualquier otra excepción no manejada, devolver divisores por defecto
+    # Preguntar al usuario si quiere usar la tasa de cambio de AlphaVantage
+    use_alpha_vantage = messagebox.askyesno(
+        "Elija una opción",
+        "¿Quiere usar la tasa de UF a CLP de Alpha Vantage? Presione 'Yes' para usarla y 'No' para usar divisores por defecto.",
+    )
+    
+    if not use_alpha_vantage:
         return [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    
+    else: 
+        try:
+            # si el servidor no está caído
+            url = 'https://www.alphavantage.co/query?function=FX_MONTHLY&from_symbol=CLF&to_symbol=CLP&apikey=5TLIDN7TN6IQZJUE'
+            r = requests.get(url)
+            data = r.json()
+
+            # Si hay un mensaje de error en la respuesta, devolver divisores por defecto
+            if 'Error Message' in data:
+                print("El servidor está caído. Usando divisores por defecto.")
+                logging.info('El servidor está caído. Usando divisores por defecto.')
+                return [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+
+            # Extraer los datos de la tasa de cambio mensual de la respuesta
+            monthly_rates = data['Time Series FX (Monthly)']
+
+            # Lista para almacenar las tasas de cambio
+            exchange_rates = []
+
+            # Iterar sobre los datos mensuales y extraer las tasas de cambio
+            for date, rate in monthly_rates.items():
+                # Convertir la cadena de la fecha a un objeto datetime
+                date_obj = datetime.strptime(date, '%Y-%m-%d')
+                # Formatear la fecha como "Mes Año" (por ejemplo, "Jun 2022")
+                month_year = date_obj.strftime('%b %Y')
+
+                # Comprobar si el mes/año está en la lista de fechas
+                if month_year in dates:
+                    exchange_rate = rate['4. close']
+                    exchange_rates.append((month_year, exchange_rate))
+
+            # Ordenar las tasas de cambio basándose en el mes/año en orden ascendente
+            exchange_rates.sort(key=lambda x: datetime.strptime(x[0], '%b %Y'))
+
+            # Extraer las tasas de cambio de la lista de tuplas
+            divisors_UF = [x[1] for x in exchange_rates]
+
+            # Convertir las tasas de cambio a flotantes
+            divisors_UF = [float(x) for x in divisors_UF]
+
+            print("Se han obtenido con éxito los datos del servidor.")
+            logging.info('Se han obtenido con éxito los datos del servidor.')
+            print(f'Divisores: {divisors_UF}')
+            logging.info(f'Divisores: {divisors_UF}')
+            return divisors_UF
+
+        except Exception as e:
+            print(f'Error al obtener la tasa de cambio: {e}')
+            print("Usando divisores por defecto debido al error.")
+            logging.info(f'Error al obtener la tasa de cambio: {e}')
+            logging.info('Usando divisores por defecto debido al error.')
+            # En caso de cualquier otra excepción no manejada, devolver divisores por defecto
+            return [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
 def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0, position=None, factor=1., subtract_codes=None):
     subtract_cols = []
