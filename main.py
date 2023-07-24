@@ -15,11 +15,10 @@ def main():
     # agrupar datos por código
     groups = group_data_by_code(df, code_column, code_prefixes, groups)
 
-    # obtener fechas desde populate_data_dict
+    # crear un diccionario de datos y una lista de fechas
     dates = []
-    divisors = fetch_exchange_rate(dates)
 
-    # Inicializar un DataFrame vacío
+    # inicializar un DataFrame vacío
     output_df = pd.DataFrame()
 
     # invertir el orden de los grupos para imprimir en el orden correcto en la hoja de cálculo
@@ -30,6 +29,8 @@ def main():
         temp_df = create_output_dataframe(data_dict, groups[group_key]["final"])
         # Fusionar temp_df con output_df aquí
         output_df = pd.concat([temp_df, output_df], axis=1)
+
+    divisors = fetch_exchange_rate(dates)
 
     new_position = 0  # especificar new_position
 
