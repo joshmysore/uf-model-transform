@@ -4,8 +4,108 @@ column_definitions = [
     'divisor': True 
 },
 {
+    'new_col_name': 'Revenues w/ VAT - Residential Leasing',
+    'codes': ['41130-10'], # REV - Rent - Residential
+},
+{
+    'new_col_name': 'Revenues w/ VAT - Gain/Loss To Lease',
+    'codes': ['41347-10'], # REV - Gain/Loss To Lease
+},
+{
+    'new_col_name': 'Revenues w/ VAT - Less: Vacancy Factor',
+    'codes': ['41350-30'], # REV - Rent Vacancy - Residential
+},
+{
+    'new_col_name': 'Revenues w/ VAT - Less: Concessions',
+    'codes': ['41320-10'], # REV - Rent Concessions
+},
+{
+    'new_col_name': 'Revenues w/ VAT - Less: Model Units',
+    'codes': ['41347-20'], # REV - Loss From Model
+},
+{
+    'new_col_name': 'Revenues w/ VAT - Less: Credit Losses',
+    'codes': ['65050-10'], # Bad Debt Expense
+    'factor': -1
+},
+{
+    'new_col_name': 'Effective Residential Revenues',
+    'sum_columns': ['Revenues w/ VAT - Residential Leasing', 'Revenues w/ VAT - Gain/Loss To Lease', 'Revenues w/ VAT - Less: Vacancy Factor', 'Revenues w/ VAT - Less: Concessions', 'Revenues w/ VAT - Less: Model Units', 'Revenues w/ VAT - Less: Credit Losses']
+},
+{
+    'new_col_name': 'Revenues w/ VAT - Service Revenues',
+    'codes': ['42030-10'], # REV - Cleaning Charges Income
+},
+{
+    'new_col_name': 'Revenues w/ VAT - Less: Vacancy Factor, Service Revenues',
+    'codes': [], 
+},
+{
+    'new_col_name': 'Effective Service Revenues',
+    'sum_columns': ['Revenues w/ VAT - Service Revenues']
+},
+{
+    'new_col_name': 'Revenues w/ VAT',
+    'sum_columns': ['Effective Residential Revenues', 'Effective Service Revenues']
+},
+{
+    'new_col_name': 'Revenues w/o VAT - Residential Parking Income',
+    'codes': ['43310-10', # REV - Parking Operation Income 
+              '43330-10', # REV - Parking Base Rent
+              '43350-10'], # REV - Parking Concession
+},
+{
+    'new_col_name': 'Revenues w/o VAT - Storage Income',
+    'codes': ['43021-01'], # REV - Storage Income
+},
+{
+    'new_col_name': 'Revenues w/o VAT - Other Income',
+    'codes': ['41310-10', # REV - Lease Cancelations 
+              '42051-10', # REV - Tenant Work Order 
+              '42480-10', # REV - Miscellaneous Income 
+              '42510-10', # REV - Key Income
+              '42515-10', # REV - Application Fee 
+              '42560-10', # REV - Tenant Damage Income 
+              '43013-20', # REV - Pet Rent 
+              '43021-02'], # REV - Facility Use Fee
+},
+{
+    'new_col_name': 'Revenues w/o VAT - Less: Vacancy Factor',
+    'codes': []
+},
+{
+    'new_col_name': 'Revenues w/o VAT - Less: Credit Losses',
+    'codes': []
+},
+{
+    'new_col_name': 'Revenues w/o VAT',
+    'sum_columns': ['Revenues w/o VAT - Residential Parking Income', 'Revenues w/o VAT - Storage Income', 'Revenues w/o VAT - Other Income', 'Revenues w/o VAT - Less: Vacancy Factor', 'Revenues w/o VAT - Less: Credit Losses']
+},
+{
+    'new_col_name': 'Maintenance - Maintenance Reimbursements',
+    'codes': ['41410-20', # REV - Cam Recovery-Estimate
+              '41130-20'], # REV - Rental - Additional Services
+},
+{
+    'new_col_name': 'Maintenance - Less: Vacancy Factor',
+    'codes': []
+},
+{
+    'new_col_name': 'Maintenance - Less: Model Units',
+    'codes': []
+},
+{
+    'new_col_name': 'Maintenance - Less: Credits Losses',
+    'codes': []
+},
+{
+    'new_col_name': 'Maintenance',
+    'sum_columns': ['Maintenance - Maintenance Reimbursements', 'Maintenance - Less: Vacancy Factor', 'Maintenance - Less: Model Units', 'Maintenance - Less: Credits Losses']
+},
+{
     'new_col_name': 'OpEx - Payroll',
-    'codes': ['1110-10', # Cleaning-Payroll
+    'codes': ['51110-10', # Cleaning-Payroll
+              '61110-10', # Cleaning-Payroll
               '1110-15', # Cleaning-Contract Service
               '1110-20', # Cleaning-Extra Service
               '2110-10', # R&M-Payroll-Salaries
@@ -140,101 +240,6 @@ column_definitions = [
 {
     'new_col_name': 'SG&A - Total',
     'sum_columns': ['SG&A - Real Estate Taxes', 'SG&A - Insurance', 'SG&A - Leasing Comissions']
-},
-{
-    'new_col_name': 'Revenues w/ VAT - Residential Leasing',
-    'codes': ['41130-10'], # REV - Rent - Residential
-},
-{
-    'new_col_name': 'Revenues w/ VAT - Gain/Loss To Lease',
-    'codes': ['41347-10'], # REV - Gain/Loss To Lease
-},
-{
-    'new_col_name': 'Revenues w/ VAT - Less: Vacancy Factor',
-    'codes': ['41350-30'], # REV - Rent Vacancy - Residential
-},
-{
-    'new_col_name': 'Revenues w/ VAT - Less: Concessions',
-    'codes': ['41320-10'], # REV - Rent Concessions
-},
-{
-    'new_col_name': 'Revenues w/ VAT - Less: Model Units',
-    'codes': ['41347-20'], # REV - Loss From Model
-},
-{
-    'new_col_name': 'Revenues w/ VAT - Less: Credit Losses',
-    'codes': ['5050-10'], # Bad Debt Expense
-    'factor': -1
-},
-{
-    'new_col_name': 'Effective Residential Revenues',
-    'sum_columns': ['Revenues w/ VAT - Residential Leasing', 'Revenues w/ VAT - Gain/Loss To Lease', 'Revenues w/ VAT - Less: Vacancy Factor', 'Revenues w/ VAT - Less: Concessions', 'Revenues w/ VAT - Less: Model Units', 'Revenues w/ VAT - Less: Credit Losses']
-},
-{
-    'new_col_name': 'Revenues w/ VAT - Service Revenues',
-    'codes': ['42030-10'], # REV - Cleaning Charges Income
-},
-{
-    'new_col_name': 'Effective Service Revenues',
-    'sum_columns': ['Revenues w/ VAT - Service Revenues']
-},
-{
-    'new_col_name': 'Revenues w/ VAT',
-    'sum_columns': ['Effective Residential Revenues', 'Effective Service Revenues']
-},
-{
-    'new_col_name': 'Revenues w/o VAT - Residential Parking Income',
-    'codes': ['43310-10', # REV - Parking Operation Income 
-              '43330-10', # REV - Parking Base Rent
-              '43350-10'], # REV - Parking Concession
-},
-{
-    'new_col_name': 'Revenues w/o VAT - Storage Income',
-    'codes': ['43021-01'], # REV - Storage Income
-},
-{
-    'new_col_name': 'Revenues w/o VAT - Other Income',
-    'codes': ['41310-10', # REV - Lease Cancelations 
-              '42051-10', # REV - Tenant Work Order 
-              '42480-10', # REV - Miscellaneous Income 
-              '42510-10', # REV - Key Income
-              '42515-10', # REV - Application Fee 
-              '42560-10', # REV - Tenant Damage Income 
-              '43013-20', # REV - Pet Rent 
-              '43021-02'], # REV - Facility Use Fee
-},
-{
-    'new_col_name': 'Revenues w/o VAT - Less: Vacancy Factor',
-    'codes': []
-},
-{
-    'new_col_name': 'Revenues w/o VAT - Less: Credit Losses',
-    'codes': []
-},
-{
-    'new_col_name': 'Revenues w/o VAT',
-    'sum_columns': ['Revenues w/o VAT - Residential Parking Income', 'Revenues w/o VAT - Storage Income', 'Revenues w/o VAT - Other Income', 'Revenues w/o VAT - Less: Vacancy Factor', 'Revenues w/o VAT - Less: Credit Losses']
-},
-{
-    'new_col_name': 'Maintenance - Maintenance Reimbursements',
-    'codes': ['41410-20', # REV - Cam Recovery-Estimate
-              '41130-20'], # REV - Rental - Additional Services
-},
-{
-    'new_col_name': 'Maintenance - Less: Vacancy Factor',
-    'codes': []
-},
-{
-    'new_col_name': 'Maintenance - Less: Model Units',
-    'codes': []
-},
-{
-    'new_col_name': 'Maintenance - Less: Credits Losses',
-    'codes': []
-},
-{
-    'new_col_name': 'Maintenance',
-    'sum_columns': ['Maintenance - Maintenance Reimbursements', 'Maintenance - Less: Vacancy Factor', 'Maintenance - Less: Model Units', 'Maintenance - Less: Credits Losses']
 },
 {
     'new_col_name': 'Total Revenue',
