@@ -198,6 +198,7 @@ column_definitions = [
               '65610-10', # Travel - General (Employee Expenses)
               '65630-10', # Auto Expense, Parking & Mileage
               '65630-11', # Non-Deductible Reimbursements
+              '68240-10', # Professional Fees (listed as Travel - General (General Leasing Expense) in old model)
               '68260-10', # Tenant Activity/Relations
               '68290-10', # Tenant Subsidy
               '68230-11', # Meals & Enternainment from General Leasing Expense
