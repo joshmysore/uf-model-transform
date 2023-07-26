@@ -10,6 +10,7 @@ from openpyxl.styles import Font, PatternFill, Border, Side
 import tempfile
 import logging
 
+# define función para elegir un archivo y crear un registro de logging
 def get_file_path():
     input('Presione Enter para seleccionar un archivo para leer en un dataframe...')
     root = tk.Tk()
@@ -46,11 +47,13 @@ def get_file_path():
 
     return file_path
 
+# define función para cargar un dataframe 
 def load_dataframe(file_path):
     logging.info(f'Cargando dataframe desde {file_path}')
     print (f'Cargando dataframe desde {file_path}')
     return pd.read_excel(file_path)
 
+# define función para encontrar la columna de código
 def find_code_column(df):
     code_column = None
     code_prefixes = [(4, 'REV'), (5, 'RE'), (6, 'NRE'), (7, 'C&GE'), (8, 'OI&E'), (9, 'OI&E')]
@@ -68,6 +71,7 @@ def find_code_column(df):
     print(f'Se ha encontrado la columna de código.')
     return code_column, code_prefixes, groups
 
+# define función para agrupar datos por código
 def group_data_by_code(df, code_column, code_prefixes, groups):
     if code_column is None:
         print("No se pudo encontrar la columna de ingresos.")
@@ -96,6 +100,7 @@ def group_data_by_code(df, code_column, code_prefixes, groups):
 
     return groups
 
+# define función para crear un diccionario de datos y una lista de fechas
 def populate_data_dict(df, code_column, codes, dates):
     data_dict = {}
     # Iterar sobre cada columna
@@ -129,6 +134,7 @@ def populate_data_dict(df, code_column, codes, dates):
                 continue
     return data_dict, dates
 
+# define función para obtener los divisores según la tasa de cambio entre CLP y UF
 def fetch_exchange_rate(dates):
     # Crear una ventana emergente para preguntar al usuario si quiere usar la tasa de cambio de AlphaVantage
     root = tk.Tk()
@@ -198,6 +204,7 @@ def fetch_exchange_rate(dates):
             # En caso de cualquier otra excepción no manejada, devolver divisores por defecto
             return [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
+# define función para crear y formatear una columna
 def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0, position=None, factor=1., subtract_codes=None):
     subtract_cols = []
     cols_to_sum = [col for col in df.columns if any(code in col for code in codes)]
@@ -242,6 +249,7 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0,
 
     return df
 
+# define función para crear un dataframe de salida
 def create_output_dataframe(data_dict, col_final):
     # Crear un DataFrame con las fechas recogidas como filas y las columnas de los códigos
     output_df = pd.DataFrame(data_dict).T
@@ -269,6 +277,7 @@ def create_output_dataframe(data_dict, col_final):
 
     return output_df
 
+# define función para crear columnas personalizadas
 def create_custom_columns(output_df, divisors, new_position, column_definitions):
     logging.info('Hasta este punto, las fechas han poblado el data_dict y el output_df ha sido creado.')
     print('Hasta este punto, las fechas han poblado el data_dict y el output_df ha sido creado.')
@@ -306,6 +315,7 @@ def create_custom_columns(output_df, divisors, new_position, column_definitions)
     print('Se han creado columnas personalizadas.')
     return output_df
 
+# define función para crear un archivo de Excel
 def style_and_save_excel(temp_filename, final_filename):
     wb = openpyxl.load_workbook(temp_filename)
     ws = wb['Sheet1']
@@ -387,6 +397,7 @@ def style_and_save_excel(temp_filename, final_filename):
     wb = openpyxl.load_workbook(temp_filename)
     ws = wb['Sheet1']
 
+# define función para exportar a Excel
 def export_to_excel(output_df, filename):
     with tempfile.NamedTemporaryFile(suffix='.xlsx', delete=True) as temp:
         output_df.T.to_excel(temp.name, index=True)
