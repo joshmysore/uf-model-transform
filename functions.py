@@ -203,6 +203,7 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0,
     cols_to_sum = [col for col in df.columns if any(code in col for code in codes)]
     logging.info(f'Columnas para ser sumadas para {new_col_name}: {cols_to_sum}') 
 
+
     if subtract_codes is not None:
         subtract_cols = [col for col in df.columns if any(code in col for code in subtract_codes)]
         for col in subtract_cols:
@@ -235,6 +236,8 @@ def create_and_format_column(df, new_col_name, codes, divisors=None, rounding=0,
         df = df.reindex(columns=cols)
 
     # print(f'Datos para {new_col_name}: {df[new_col_name]}')  # Línea de depuración
+    # print all the numbers that were added together to create the new column
+
     logging.info(f'Datos para {new_col_name}: {df[new_col_name]}')
 
     return df
@@ -367,6 +370,9 @@ def style_and_save_excel(temp_filename, final_filename):
     # Ajustar la longitud de cada columna
     for i, length in col_max_length.items():
         ws.column_dimensions[i].width = length + 5
+
+    # Congelar paneles de B2
+    ws.freeze_panes = 'B2'
 
     # Renombrar 'Sheet1' a 'Salida Final'
     ws.title = 'Salida Final'

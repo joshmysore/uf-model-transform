@@ -103,6 +103,10 @@ column_definitions = [
     'sum_columns': ['Maintenance - Maintenance Reimbursements', 'Maintenance - Less: Vacancy Factor', 'Maintenance - Less: Model Units', 'Maintenance - Less: Credits Losses']
 },
 {
+    'new_col_name': 'Total Revenue',
+    'sum_columns': ['Revenues w/ VAT', 'Revenues w/o VAT', 'Maintenance']
+},
+{
     'new_col_name': 'OpEx - Payroll',
     'codes': ['51110-10', # Cleaning-Payroll
               '61110-10', # Cleaning-Payroll
@@ -112,7 +116,7 @@ column_definitions = [
               '62140-10', # R&M-Payroll-Outside Contract
               '65110-10', # Administrative-Payroll-Salaries
               '65120-10', # Administrative-Payroll-Reimbursed-Labor
-              '65140-10' # Administrative-Payroll-Outside Contract
+              '65140-10', # Administrative-Payroll-Outside Contract
               '55330-10', # Other Professional Fees
               '65330-10'], # Other Professional Fees
     'factor': -1
@@ -210,7 +214,7 @@ column_definitions = [
 },
 {
     'new_col_name': 'OpEx - Maintenance',
-    'sum_columns': ['OpEx - Marketing', 'OpEx - Repairs & Maintenance', 'OpEx - Office Expenses', 'OpEx - Utilities', 'OpEx - Others']
+    'sum_columns': ['OpEx - Payroll', 'OpEx - Marketing', 'OpEx - Repairs & Maintenance', 'OpEx - Office Expenses', 'OpEx - Utilities', 'OpEx - Others']
 },
 {
     'new_col_name': 'OpEx - Total',
@@ -234,9 +238,5 @@ column_definitions = [
 {
     'new_col_name': 'SG&A - Total',
     'sum_columns': ['SG&A - Real Estate Taxes', 'SG&A - Insurance', 'SG&A - Leasing Comissions']
-},
-{
-    'new_col_name': 'Total Revenue',
-    'sum_columns': ['Revenues w/ VAT', 'Revenues w/o VAT', 'Maintenance']
 }
 ]

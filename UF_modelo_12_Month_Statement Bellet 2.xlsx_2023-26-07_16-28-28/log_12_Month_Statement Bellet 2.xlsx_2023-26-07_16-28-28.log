@@ -1,0 +1,452 @@
+07/26/2023 04:28:28 PM INFO Inició la función get_file_path
+07/26/2023 04:28:28 PM INFO El archivo 12_Month_Statement Bellet 2.xlsx ha sido leído en un dataframe.
+07/26/2023 04:28:28 PM INFO Cargando dataframe desde /Users/joshmysore/Code/CCLA/uf-model-transform/yardi_statements/12_Month_Statement Bellet 2.xlsx
+07/26/2023 04:28:28 PM INFO Se han creado los prefijos de código basados en el primer dígito del código: [(4, 'REV'), (5, 'RE'), (6, 'NRE'), (7, 'C&GE'), (8, 'OI&E'), (9, 'OI&E')].
+07/26/2023 04:28:28 PM INFO Se han creado grupos basados en los prefijos de código: {4: {'codes': [], 'names': [], 'final': [], 'prefix': 'REV'}, 5: {'codes': [], 'names': [], 'final': [], 'prefix': 'RE'}, 6: {'codes': [], 'names': [], 'final': [], 'prefix': 'NRE'}, 7: {'codes': [], 'names': [], 'final': [], 'prefix': 'C&GE'}, 8: {'codes': [], 'names': [], 'final': [], 'prefix': 'OI&E'}, 9: {'codes': [], 'names': [], 'final': [], 'prefix': 'OI&E'}}.
+07/26/2023 04:28:28 PM INFO Se ha encontrado la columna de código: Property =  lo08011 lo08012 lo08013 lo08022 lo08023
+07/26/2023 04:28:28 PM INFO Se ha creado la columna de nombres basada en la posición de la columna de códigos.
+07/26/2023 04:28:28 PM INFO Se han poblado los grupos para el grupo basado en el prefijo del código.
+07/26/2023 04:28:28 PM INFO Se han creado las filas de grupo para el grupo basado en el prefijo del código.
+07/26/2023 04:28:28 PM INFO Se han creado los datos del grupo para el grupo basado en el prefijo del código.
+07/26/2023 04:28:31 PM INFO Hasta este punto, las fechas han poblado el data_dict y el output_df ha sido creado.
+07/26/2023 04:28:31 PM INFO Las columnas han sido renombradas a los nombres finales.
+07/26/2023 04:28:31 PM INFO Las columnas que solo tienen un encabezado y no tienen datos han sido eliminadas.
+07/26/2023 04:28:31 PM INFO Las columnas con la palabra "total" en el nombre han sido eliminadas.
+07/26/2023 04:28:31 PM INFO Las columnas han sido ordenadas en base al código completo.
+07/26/2023 04:28:31 PM INFO Las columnas han sido reorganizadas en el dataframe.
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para Revenues w/ VAT - Residential Leasing: ['41130-10: REV - Rent - Residential']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para Revenues w/ VAT - Residential Leasing: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para Revenues w/ VAT - Residential Leasing: Jan 2022    69080552.0
+Feb 2022    69383384.0
+Mar 2022    69383384.0
+Apr 2022    69383384.0
+May 2022    69383384.0
+Jun 2022    69383384.0
+Jul 2022    69383384.0
+Aug 2022    69307537.0
+Sep 2022    69383384.0
+Oct 2022    69383384.0
+Nov 2022    69383384.0
+Dec 2022    69383384.0
+Name: Revenues w/ VAT - Residential Leasing, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para Revenues w/ VAT - Gain/Loss To Lease: ['41347-10: REV - Gain/Loss To Lease']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para Revenues w/ VAT - Gain/Loss To Lease: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para Revenues w/ VAT - Gain/Loss To Lease: Jan 2022    -472681.0
+Feb 2022   -5569439.0
+Mar 2022   -9655104.0
+Apr 2022   -2627738.0
+May 2022     565883.0
+Jun 2022    -376840.0
+Jul 2022    1324690.0
+Aug 2022    2266938.0
+Sep 2022    1906771.0
+Oct 2022    2242124.0
+Nov 2022    4537774.0
+Dec 2022   -1537982.0
+Name: Revenues w/ VAT - Gain/Loss To Lease, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para Revenues w/ VAT - Less: Vacancy Factor: ['41350-30: REV - Rent Vacancy - Residential']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para Revenues w/ VAT - Less: Vacancy Factor: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para Revenues w/ VAT - Less: Vacancy Factor: Jan 2022   -65172715.0
+Feb 2022   -51995694.0
+Mar 2022   -27067342.0
+Apr 2022   -22547600.0
+May 2022   -21802162.0
+Jun 2022   -20423017.0
+Jul 2022   -19992919.0
+Aug 2022   -19245868.0
+Sep 2022   -17320119.0
+Oct 2022   -16304009.0
+Nov 2022   -13297038.0
+Dec 2022   -11343775.0
+Name: Revenues w/ VAT - Less: Vacancy Factor, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para Revenues w/ VAT - Less: Concessions: ['41320-10: REV - Rent Concessions']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para Revenues w/ VAT - Less: Concessions: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para Revenues w/ VAT - Less: Concessions: Jan 2022          0.0
+Feb 2022   -6435070.0
+Mar 2022   -9283483.0
+Apr 2022    -343897.0
+May 2022          0.0
+Jun 2022   -6844887.0
+Jul 2022   -2545432.0
+Aug 2022    -552320.0
+Sep 2022   -3753349.0
+Oct 2022   -1742462.0
+Nov 2022    -847007.0
+Dec 2022   -1539807.0
+Name: Revenues w/ VAT - Less: Concessions, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para Revenues w/ VAT - Less: Model Units: ['41347-20: REV - Loss From Model']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para Revenues w/ VAT - Less: Model Units: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para Revenues w/ VAT - Less: Model Units: Jan 2022   -1629082.0
+Feb 2022    -947562.0
+Mar 2022    -947562.0
+Apr 2022    -947562.0
+May 2022    -947562.0
+Jun 2022    -947562.0
+Jul 2022    -947562.0
+Aug 2022    -947562.0
+Sep 2022    -947562.0
+Oct 2022    -947562.0
+Nov 2022    -947562.0
+Dec 2022    -947562.0
+Name: Revenues w/ VAT - Less: Model Units, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para Revenues w/ VAT - Less: Credit Losses: ['65050-10: NRE - Bad Debt Expense']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para Revenues w/ VAT - Less: Credit Losses: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para Revenues w/ VAT - Less: Credit Losses: Jan 2022          -0.0
+Feb 2022          -0.0
+Mar 2022          -0.0
+Apr 2022          -0.0
+May 2022          -0.0
+Jun 2022          -0.0
+Jul 2022          -0.0
+Aug 2022          -0.0
+Sep 2022          -0.0
+Oct 2022          -0.0
+Nov 2022          -0.0
+Dec 2022   -10605583.0
+Name: Revenues w/ VAT - Less: Credit Losses, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para Revenues w/ VAT - Service Revenues: ['42030-10: REV - Cleaning Charges Income']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para Revenues w/ VAT - Service Revenues: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para Revenues w/ VAT - Service Revenues: Jan 2022        0.0
+Feb 2022        0.0
+Mar 2022        0.0
+Apr 2022        0.0
+May 2022        0.0
+Jun 2022        0.0
+Jul 2022        0.0
+Aug 2022        0.0
+Sep 2022        0.0
+Oct 2022        0.0
+Nov 2022    23315.0
+Dec 2022        0.0
+Name: Revenues w/ VAT - Service Revenues, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para Revenues w/ VAT - Less: Vacancy Factor, Service Revenues: []
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para Revenues w/ VAT - Less: Vacancy Factor, Service Revenues: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para Revenues w/ VAT - Less: Vacancy Factor, Service Revenues: Jan 2022    0.0
+Feb 2022    0.0
+Mar 2022    0.0
+Apr 2022    0.0
+May 2022    0.0
+Jun 2022    0.0
+Jul 2022    0.0
+Aug 2022    0.0
+Sep 2022    0.0
+Oct 2022    0.0
+Nov 2022    0.0
+Dec 2022    0.0
+Name: Revenues w/ VAT - Less: Vacancy Factor, Service Revenues, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para Revenues w/o VAT - Residential Parking Income: ['43310-10: REV - Parking Operation Income', '43330-10: REV - Parking Base Rent', '43350-10: REV - Parking Concession']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para Revenues w/o VAT - Residential Parking Income: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para Revenues w/o VAT - Residential Parking Income: Jan 2022     129575.0
+Feb 2022     430271.0
+Mar 2022     641908.0
+Apr 2022     962257.0
+May 2022     979611.0
+Jun 2022    1069876.0
+Jul 2022    1119749.0
+Aug 2022    1327922.0
+Sep 2022    1235134.0
+Oct 2022    1457535.0
+Nov 2022    1849858.0
+Dec 2022    1720057.0
+Name: Revenues w/o VAT - Residential Parking Income, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para Revenues w/o VAT - Storage Income: ['43021-01: REV - Storage Income']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para Revenues w/o VAT - Storage Income: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para Revenues w/o VAT - Storage Income: Jan 2022         0.0
+Feb 2022         0.0
+Mar 2022         0.0
+Apr 2022         0.0
+May 2022     11511.0
+Jun 2022     69848.0
+Jul 2022     76461.0
+Aug 2022    106682.0
+Sep 2022    160047.0
+Oct 2022    134174.0
+Nov 2022    209789.0
+Dec 2022    107917.0
+Name: Revenues w/o VAT - Storage Income, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para Revenues w/o VAT - Other Income: ['41310-10: REV - Lease Cancellations', '42051-10: REV - Tenant Work Order', '42480-10: REV - Miscellaneous Income', '42510-10: REV - Key Income', '42515-10: REV - Application Fee', '42535-10: REV - Month To Month Fee', '42560-10: REV - Tenant Damage Income', '43013-20: REV - Pet Rent', '43021-02: REV - Facility Use Fee']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para Revenues w/o VAT - Other Income: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para Revenues w/o VAT - Other Income: Jan 2022     378151.0
+Feb 2022     629159.0
+Mar 2022     841458.0
+Apr 2022      74218.0
+May 2022     160419.0
+Jun 2022      74941.0
+Jul 2022     318940.0
+Aug 2022     277510.0
+Sep 2022     306831.0
+Oct 2022     644074.0
+Nov 2022    3770118.0
+Dec 2022     608996.0
+Name: Revenues w/o VAT - Other Income, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para Revenues w/o VAT - Less: Vacancy Factor: []
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para Revenues w/o VAT - Less: Vacancy Factor: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para Revenues w/o VAT - Less: Vacancy Factor: Jan 2022    0.0
+Feb 2022    0.0
+Mar 2022    0.0
+Apr 2022    0.0
+May 2022    0.0
+Jun 2022    0.0
+Jul 2022    0.0
+Aug 2022    0.0
+Sep 2022    0.0
+Oct 2022    0.0
+Nov 2022    0.0
+Dec 2022    0.0
+Name: Revenues w/o VAT - Less: Vacancy Factor, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para Revenues w/o VAT - Less: Credit Losses: []
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para Revenues w/o VAT - Less: Credit Losses: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para Revenues w/o VAT - Less: Credit Losses: Jan 2022    0.0
+Feb 2022    0.0
+Mar 2022    0.0
+Apr 2022    0.0
+May 2022    0.0
+Jun 2022    0.0
+Jul 2022    0.0
+Aug 2022    0.0
+Sep 2022    0.0
+Oct 2022    0.0
+Nov 2022    0.0
+Dec 2022    0.0
+Name: Revenues w/o VAT - Less: Credit Losses, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para Maintenance - Maintenance Reimbursements: ['41130-20: REV - Rental - Additional Services', '41410-20: REV - Cam Recovery-Estimate']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para Maintenance - Maintenance Reimbursements: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para Maintenance - Maintenance Reimbursements: Jan 2022      376564.0
+Feb 2022     2427883.0
+Mar 2022     6615545.0
+Apr 2022    10787561.0
+May 2022    10898843.0
+Jun 2022    12207553.0
+Jul 2022    13129160.0
+Aug 2022    18724662.0
+Sep 2022    16692711.0
+Oct 2022    12083161.0
+Nov 2022    11702268.0
+Dec 2022    17843978.0
+Name: Maintenance - Maintenance Reimbursements, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para Maintenance - Less: Vacancy Factor: []
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para Maintenance - Less: Vacancy Factor: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para Maintenance - Less: Vacancy Factor: Jan 2022    0.0
+Feb 2022    0.0
+Mar 2022    0.0
+Apr 2022    0.0
+May 2022    0.0
+Jun 2022    0.0
+Jul 2022    0.0
+Aug 2022    0.0
+Sep 2022    0.0
+Oct 2022    0.0
+Nov 2022    0.0
+Dec 2022    0.0
+Name: Maintenance - Less: Vacancy Factor, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para Maintenance - Less: Model Units: []
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para Maintenance - Less: Model Units: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para Maintenance - Less: Model Units: Jan 2022    0.0
+Feb 2022    0.0
+Mar 2022    0.0
+Apr 2022    0.0
+May 2022    0.0
+Jun 2022    0.0
+Jul 2022    0.0
+Aug 2022    0.0
+Sep 2022    0.0
+Oct 2022    0.0
+Nov 2022    0.0
+Dec 2022    0.0
+Name: Maintenance - Less: Model Units, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para Maintenance - Less: Credits Losses: []
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para Maintenance - Less: Credits Losses: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para Maintenance - Less: Credits Losses: Jan 2022    0.0
+Feb 2022    0.0
+Mar 2022    0.0
+Apr 2022    0.0
+May 2022    0.0
+Jun 2022    0.0
+Jul 2022    0.0
+Aug 2022    0.0
+Sep 2022    0.0
+Oct 2022    0.0
+Nov 2022    0.0
+Dec 2022    0.0
+Name: Maintenance - Less: Credits Losses, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para OpEx - Payroll: ['51110-15: RE - Cleaning-Contract Service', '55330-10: RE - Other Professional Fees', '61110-10: NRE - Cleaning-Payroll', '61110-15: NRE - Cleaning-Contract Service', '61110-20: NRE - Cleaning-Extra Service', '62110-10: NRE - R&M-Payroll-Salaries', '62140-10: NRE - R&M-Payroll-Outside Contract', '65110-10: NRE - Administrative-Payroll-Salaries', '65120-10: NRE - Administrative-Payroll-Reimbursed Labor', '65140-10: NRE - Administrative-Payroll-Outside Contract', '65330-10: NRE - Other Professional Fees']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para OpEx - Payroll: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para OpEx - Payroll: Jan 2022    -6175005.0
+Feb 2022   -30543500.0
+Mar 2022   -12562040.0
+Apr 2022   -22075054.0
+May 2022   -59690237.0
+Jun 2022   -19350316.0
+Jul 2022   -21131337.0
+Aug 2022   -19244779.0
+Sep 2022   -14790263.0
+Oct 2022   -15172769.0
+Nov 2022   -23282892.0
+Dec 2022   -18404233.0
+Name: OpEx - Payroll, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para OpEx - Marketing: ['68220-10: NRE - Advertising & Promo', '68330-10: NRE - Marketing']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para OpEx - Marketing: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para OpEx - Marketing: Jan 2022    -763893.0
+Feb 2022         -0.0
+Mar 2022   -3312511.0
+Apr 2022   -2535770.0
+May 2022   -5134463.0
+Jun 2022   -2653695.0
+Jul 2022   -3737292.0
+Aug 2022   -2987840.0
+Sep 2022   -2726941.0
+Oct 2022   -8221115.0
+Nov 2022   -2940927.0
+Dec 2022   -2221513.0
+Name: OpEx - Marketing, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para OpEx - Repairs & Maintenance: ['51110-40: RE - Cleaning-Repairs&Maintenance', '52210-20: RE - Elevator/Escalator-Service Contracts', '52710-20: RE - Fire & Safety-R&M Contract', '52710-40: RE - Fire & Safety-Repairs & Maintenance', '52810-20: RE - Pest Control-Contract', '54210-20: RE - Landscaping-Gardening Contract', '61110-40: NRE - Cleaning-Repairs&Maintenance', '62210-20: NRE - Elev-Service Contract', '62710-20: NRE - Fire & Safety-R&M Contract', '62710-40: NRE - Fire & Safety-Repairs & Maintenance', '62810-20: NRE - Pest Control-Contract', '63110-10: NRE - Bldg R&M (Interior)-Building', '63120-10: NRE - Bldg R&M (Interior)-Lock & Keys', '63130-10: NRE - Bldg R&M (Interior)-Painting', '63990-20: NRE - Repairs And Maintenance', '64210-20: NRE - Landscaping-Gardening Contract', '64230-20: NRE - Pool-Service Contract']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para OpEx - Repairs & Maintenance: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para OpEx - Repairs & Maintenance: Jan 2022     -202500.0
+Feb 2022     -180000.0
+Mar 2022   -10983116.0
+Apr 2022     6954984.0
+May 2022     -856374.0
+Jun 2022    -1418426.0
+Jul 2022     -995002.0
+Aug 2022    -2259871.0
+Sep 2022    -1349489.0
+Oct 2022    -1099042.0
+Nov 2022    -1764184.0
+Dec 2022    -2854400.0
+Name: OpEx - Repairs & Maintenance, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para OpEx - Office Expenses: ['51110-50: RE - Cleaning-Supplies&Materials', '54140-10: RE - Telephone', '55330-10: RE - Other Professional Fees', '55430-10: RE - Office Supplies', '55470-10: RE - License, Permits & Fees', '61110-50: NRE - Cleaning-Supplies & Materials', '62610-50: NRE - Plumbing-Supplies  &  Materials', '63160-10: NRE - Bldg R&M (Interior)-Supplies & Materials', '63165-10: NRE - Bldg R&M (Interior)-Uniforms', '64140-10: NRE - Telephone', '64820-10: NRE - Supplies & Materials', '65310-10: NRE - Accounting/Tax', '65320-10: NRE - Legal Fees', '65330-10: NRE - Other Professional Fees', '65405-10: NRE - Meals & Entertainment', '65410-20: NRE - Office Employee Parking', '65430-10: NRE - Office Supplies', '65440-10: NRE - Office Expense', '65440-95: NRE - Telecom/Internet', '65460-10: NRE - Credit Check', '65465-10: NRE - Credit Card Fee', '65470-10: NRE - License, Permit, & Fees', '65480-10: NRE - Postage/Messengerial', '65550-10: NRE - Training & Seminar', '95200-15: OI&E - Appraisal Fee']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para OpEx - Office Expenses: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para OpEx - Office Expenses: Jan 2022    -6157878.0
+Feb 2022   -13014026.0
+Mar 2022   -11803346.0
+Apr 2022    -8500827.0
+May 2022   -26535864.0
+Jun 2022   -18780090.0
+Jul 2022   -13076308.0
+Aug 2022    -7079149.0
+Sep 2022    -6395523.0
+Oct 2022    -9090159.0
+Nov 2022   -22094522.0
+Dec 2022    -7935309.0
+Name: OpEx - Office Expenses, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para OpEx - Utilities: ['54110-10: RE - Electricity', '54130-10: RE - Water/Sewer', '64110-10: NRE - Electricity', '64120-10: NRE - Gas', '64130-10: NRE - Water/Sewer', '65440-95: NRE - Telecom/Internet']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para OpEx - Utilities: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para OpEx - Utilities: Jan 2022     -879535.0
+Feb 2022    -1114377.0
+Mar 2022    -4788244.0
+Apr 2022    -5037746.0
+May 2022    -3900135.0
+Jun 2022    -5374796.0
+Jul 2022   -11801707.0
+Aug 2022    -1285028.0
+Sep 2022      -46874.0
+Oct 2022    -8486839.0
+Nov 2022    -9691691.0
+Dec 2022    -6896088.0
+Name: OpEx - Utilities, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para OpEx - Others: ['61400-10: NRE - Miscellaneous - Covid19', '65050-30: NRE - Non Creditable Vat', '65060-10: NRE - Late Fees', '65610-10: NRE - Travel - General', '65630-10: NRE - Auto Expense, Parking & Mileage', '65630-11: NRE - Non-Deductible Reimbursements', '68220-10: NRE - Advertising & Promo', '68230-10: NRE - Travel - General', '68230-11: NRE - Meals & Entertainment', '68260-10: NRE - Tenant Activity/Relations', '70110-10: C&GE - Legal Services', '93110-10: OI&E - Bank Charges']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para OpEx - Others: ['91010-10: OI&E - Interest Income-Investment']
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para OpEx - Others: Jan 2022    -6192517.0
+Feb 2022    -1734533.0
+Mar 2022    -6591070.0
+Apr 2022    -4012248.0
+May 2022    -9738984.0
+Jun 2022    -5288544.0
+Jul 2022    -6732488.0
+Aug 2022    -4826978.0
+Sep 2022    -6360972.0
+Oct 2022   -12426137.0
+Nov 2022    -6706780.0
+Dec 2022   -10582466.0
+Name: OpEx - Others, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para OpEx - Property Management Fee: ['65215-10: NRE - Property Mgmnt Fee-3Rd Party']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para OpEx - Property Management Fee: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para OpEx - Property Management Fee: Jan 2022    -134518.0
+Feb 2022    -422517.0
+Mar 2022   -1526440.0
+Apr 2022   -2738481.0
+May 2022   -2962496.0
+Jun 2022   -1244633.0
+Jul 2022   -2579165.0
+Aug 2022   -3041536.0
+Sep 2022   -2828483.0
+Oct 2022   -2342090.0
+Nov 2022   -3169253.0
+Dec 2022   -3160824.0
+Name: OpEx - Property Management Fee, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para SG&A - Real Estate Taxes: ['67110-10: NRE - Real Estate Tax']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para SG&A - Real Estate Taxes: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para SG&A - Real Estate Taxes: Jan 2022          -0.0
+Feb 2022          -0.0
+Mar 2022          -0.0
+Apr 2022    -7422821.0
+May 2022          -0.0
+Jun 2022          -0.0
+Jul 2022    -7545517.0
+Aug 2022          -0.0
+Sep 2022    -8018101.0
+Oct 2022          -0.0
+Nov 2022    21048342.0
+Dec 2022     -183689.0
+Name: SG&A - Real Estate Taxes, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para SG&A - Insurance: ['67230-10: NRE - Property Insurance']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para SG&A - Insurance: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para SG&A - Insurance: Jan 2022   -1170372.0
+Feb 2022   -1170372.0
+Mar 2022   -1170372.0
+Apr 2022   -1170372.0
+May 2022   -1170372.0
+Jun 2022   -1170372.0
+Jul 2022   -1170372.0
+Aug 2022   -1170372.0
+Sep 2022   -1170372.0
+Oct 2022   -1170372.0
+Nov 2022   -1170372.0
+Dec 2022   -1170372.0
+Name: SG&A - Insurance, dtype: float64
+07/26/2023 04:28:31 PM INFO Columnas para ser sumadas para SG&A - Leasing Comissions: ['68110-10: NRE - Leasing Payroll-Salaries', '68140-10: NRE - Leasing Payroll-Outside Contract', '68240-10: NRE - Professional Fees', '68280-10: NRE - Other Leasing Cost']
+07/26/2023 04:28:31 PM INFO Columnas para ser restadas para SG&A - Leasing Comissions: []
+07/26/2023 04:28:31 PM INFO Se aplican los divisores ([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) a la columna.
+07/26/2023 04:28:31 PM INFO Datos para SG&A - Leasing Comissions: Jan 2022      -569.0
+Feb 2022   -103886.0
+Mar 2022   -110676.0
+Apr 2022   -163394.0
+May 2022    -33567.0
+Jun 2022    -47060.0
+Jul 2022    -23761.0
+Aug 2022    -48137.0
+Sep 2022    -49141.0
+Oct 2022    -18346.0
+Nov 2022    -32198.0
+Dec 2022    -42769.0
+Name: SG&A - Leasing Comissions, dtype: float64
+07/26/2023 04:28:31 PM INFO Se han creado columnas personalizadas.
+07/26/2023 04:28:31 PM INFO Se han establecido estilos para bordes, franjas y encabezados
+07/26/2023 04:28:31 PM INFO Se han aplicado estilos al archivo de Excel.
+07/26/2023 04:28:31 PM INFO El archivo ha sido guardado como UF_modelo_12_Month_Statement Bellet 2.xlsx en /Users/joshmysore/Code/CCLA/uf-model-transform/UF_modelo_12_Month_Statement Bellet 2.xlsx_2023-26-07_16-28-28

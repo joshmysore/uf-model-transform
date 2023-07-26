@@ -104,6 +104,10 @@ column_definitions = [
     'sum_columns': ['Maintenance - Maintenance Reimbursements', 'Maintenance - Less: Vacancy Factor', 'Maintenance - Less: Model Units', 'Maintenance - Less: Credits Losses']
 },
 {
+    'new_col_name': 'Total Revenue',
+    'sum_columns': ['Revenues w/ VAT', 'Revenues w/o VAT', 'Maintenance']
+},
+{
     'new_col_name': 'OpEx - Payroll',
     'codes': ['51110-10', # Cleaning-Payroll
               '61110-10', # Cleaning-Payroll
@@ -114,7 +118,7 @@ column_definitions = [
               '62140-10', # R&M-Payroll-Outside Contract
               '65110-10', # Administrative-Payroll-Salaries
               '65120-10', # Administrative-Payroll-Reimbursed-Labor
-              '65140-10' # Administrative-Payroll-Outside Contract
+              '65140-10', # Administrative-Payroll-Outside Contract
               '55330-10', # Other Professional Fees
               '65330-10'], # Other Professional Fees
     'factor': -1
@@ -150,7 +154,7 @@ column_definitions = [
               '63265-10', # Bldg R&M (Exterior)-Window Replacement
               '63130-10', # Bldg R&M (Interior)-Painting
               '63110-10', # Bldg R&M (Interior)-Building
-              '63990-20',], # Repairs And Maintenance
+              '63990-20'], # Repairs And Maintenance
     'factor': -1
 },
 {
@@ -173,12 +177,12 @@ column_definitions = [
               '55470-10', # License, Permit, & Fees
               '65470-10', # License, Permit, & Fees
               '65480-10', # Postage/Messengerial
-              '65550-10' # Training & Seminar
-              '65460-10' # Credit Check
-              '52610-20' # Plumbing-Service Contract
-              '62610-20' # Plumbing-Service Contract
-              '52610-50' # Plumbing-Supplies&Materials
-              '62610-50' # Plumbing-Supplies&Materials
+              '65550-10', # Training & Seminar
+              '65460-10', # Credit Check
+              '52610-20', # Plumbing-Service Contract
+              '62610-20', # Plumbing-Service Contract
+              '52610-50', # Plumbing-Supplies&Materials
+              '62610-50', # Plumbing-Supplies&Materials
               '63160-10', # Bldg R&M (Interior)-Supplies & Materials
               '63165-10', # Bldg R&M (Interior)-Uniforms
               '53180-30', # Bldg R&M (Interior)-Generator
@@ -208,8 +212,7 @@ column_definitions = [
               '65610-10', # Travel - General (Employee Expenses)
               '65630-10', # Auto Expense, Parking & Mileage
               '65630-11', # Non-Deductible Reimbursements
-              '68230-10' # Travel - General (General Leasing Expense)
-              '68220-10', # Advertising & Promo
+              '68230-10', # Travel - General (General Leasing Expense)
               '68260-10', # Tenant Activity/Relations
               '68290-10', # Tenant Subsidy
               '68230-11', # Meals & Enternainment from General Leasing Expense
@@ -226,7 +229,7 @@ column_definitions = [
 },
 {
     'new_col_name': 'OpEx - Maintenance',
-    'sum_columns': ['OpEx - Marketing', 'OpEx - Repairs & Maintenance', 'OpEx - Office Expenses', 'OpEx - Utilities', 'OpEx - Others']
+    'sum_columns': ['OpEx - Payroll', 'OpEx - Marketing', 'OpEx - Repairs & Maintenance', 'OpEx - Office Expenses', 'OpEx - Utilities', 'OpEx - Others']
 },
 {
     'new_col_name': 'OpEx - Total',
@@ -255,9 +258,5 @@ column_definitions = [
 {
     'new_col_name': 'SG&A - Total',
     'sum_columns': ['SG&A - Real Estate Taxes', 'SG&A - Insurance', 'SG&A - Leasing Comissions']
-},
-{
-    'new_col_name': 'Total Revenue',
-    'sum_columns': ['Revenues w/ VAT', 'Revenues w/o VAT', 'Maintenance']
 }
 ]
