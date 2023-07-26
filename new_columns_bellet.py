@@ -186,16 +186,14 @@ column_definitions = [
               '54140-10', # Telephone
               '64140-10', # Telephone
               '54820-10', # Supplies & Materials
-              '64820-10', # Supplies & Materials
-
-              '65420-10', # Office Furniture/Equipment Rental
-              ], 
+              '64820-10'], # Supplies & Materials
     'factor': -1
 },
 {
     'new_col_name': 'OpEx - Utilities',
     'codes': ['54110-10', # Electricity
               '64110-10', # Electricity
+              '65440-95', # Telecom/Internet
               '54120-10', # Gas
               '64120-10', # Gas
               '54130-10', # Water/Sewer
@@ -210,6 +208,7 @@ column_definitions = [
               '65610-10', # Travel - General (Employee Expenses)
               '65630-10', # Auto Expense, Parking & Mileage
               '65630-11', # Non-Deductible Reimbursements
+              '68230-10' # Travel - General (General Leasing Expense)
               '68220-10', # Advertising & Promo
               '68260-10', # Tenant Activity/Relations
               '68290-10', # Tenant Subsidy
@@ -245,7 +244,12 @@ column_definitions = [
 },
 {
     'new_col_name': 'SG&A - Leasing Comissions',
-    'sum_columns': ['Revenues w/ VAT', 'Revenues w/o VAT'],
+    'codes': ['58110-10', # Leasing Payroll-Salaries
+              '68110-10', # Leasing Payroll-Salaries
+              '58140-10', # Leasing Payroll-Outside Contract
+              '68140-10', # Leasing Payroll-Outside Contract
+              '68240-10', # Professional Fees
+              '68280-10'], # Other Leasing Cost
     'factor': -0.025
 },
 {

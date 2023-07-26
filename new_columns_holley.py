@@ -140,8 +140,8 @@ column_definitions = [
               '62810-20', # Pest Control-Contract
               '54210-20', # Landscaping-Gardening Contract
               '64210-20', # Landscaping-Gardening Contract
-              '64230-20', # Pool-Service Contract
-              '64245-10'],# Turn-Over--Painting
+              '64245-10', # Turn-Over--Painting
+              '64230-20'], # Pool-Service Contract
     'factor': -1
 },
 {
@@ -164,9 +164,9 @@ column_definitions = [
               '95200-15', # OI&E - Appraisal Fee (category 9)
               '65320-10', # Legal Fees
               '65330-10', # Other Professional Fees
+              '65420-10', # Office Furniture/Equipment Rental
               '65405-10', # Meals & Entertainment
               '65410-20', # Office Employee Parking
-              '65420-10', # Office Furniture/Equipment Rental
               '65430-10', # Office Supplies
               '65440-10', # Office Expense
               '65440-95', # Telecom/Internet
