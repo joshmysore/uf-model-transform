@@ -65,6 +65,7 @@ column_definitions = [
               '42480-10', # REV - Miscellaneous Income 
               '42510-10', # REV - Key Income
               '42515-10', # REV - Application Fee 
+              '42535-10', # REV - Month to Month Fee
               '42560-10', # REV - Tenant Damage Income 
               '43013-20', # REV - Pet Rent 
               '43021-02'], # REV - Facility Use Fee
@@ -106,81 +107,113 @@ column_definitions = [
     'new_col_name': 'OpEx - Payroll',
     'codes': ['51110-10', # Cleaning-Payroll
               '61110-10', # Cleaning-Payroll
-              '1110-15', # Cleaning-Contract Service
-              '1110-20', # Cleaning-Extra Service
-              '2110-10', # R&M-Payroll-Salaries
-              '2140-10', # R&M-Payroll-Outside Contract
-              '5110-10', # Administrative-Payroll-Salaries
-              '5120-10', # Administrative-Payroll-Reimbursed-Labor
-              '5140-10', # Administrative-Payroll-Outside Contract
-              '5330-10'], # Other Professional Fees
+              '51110-15', # Cleaning-Contract Service
+              '61110-15', # Cleaning-Contract Service
+              '61110-20', # Cleaning-Extra Service
+              '62110-10', # R&M-Payroll-Salaries
+              '62140-10', # R&M-Payroll-Outside Contract
+              '65110-10', # Administrative-Payroll-Salaries
+              '65120-10', # Administrative-Payroll-Reimbursed-Labor
+              '65140-10' # Administrative-Payroll-Outside Contract
+              '55330-10', # Other Professional Fees
+              '65330-10'], # Other Professional Fees
     'factor': -1
 },
 {
     'new_col_name': 'OpEx - Marketing',
-    'codes': ['8220-10', # Advertising & Promo
-              '8330-10'], # Marketing
+    'codes': ['68220-10', # Advertising & Promo
+              '68330-10'], # Marketing
     'factor': -1
 },
 {
     'new_col_name': 'OpEx - Repairs & Maintenance',
-    'codes': ['2210-20', # Elevator/Escalator-Service Contracts
-              '2610-40', # Plumbing-Repairs & Maintenance
-              '2710-20', # Fire & Safety-R&M Contract
-              '2710-40', # Fire & Safety-Repairs & Maintenance
-              '2710-50', # Fire & Safety-Supplies & Materials
-              '3990-20', # Repairs And Maintenance
-              '2810-20', # Pest Control-Contract
-              '4210-10', # Landscaping-Gardening Payroll
-              '4210-20', # Landscaping-Gardening Contract
-              '4230-20', # Pool-Service Contract
-              '4245-10'],# Turn-Over--Painting
+    'codes': ['52210-20', # Elevator/Escalator-Service Contracts
+              '62210-20', # Elev-Service Contract
+              '52710-20', # Fire & Safety-R&M Contract
+              '62710-20', # Fire & Safety-R&M Contract
+              '52710-40', # Fire & Safety-Repairs & Maintenance
+              '62710-40', # Fire & Safety-Repairs & Maintenance
+              '62710-50', # Fire & Safety-Supplies & Materials
+              '52810-20', # Pest Control-Contract
+              '62810-20', # Pest Control-Contract
+              '54210-20', # Landscaping-Gardening Contract
+              '64210-20', # Landscaping-Gardening Contract
+              '64245-10', # Turn-Over--Painting
+              '64230-20', # Pool-Service Contract
+              '53120-10', # Bldg R&M (Interior)-Lock & Keys
+              '63120-10', # Bldg R&M (Interior)-Lock & Keys
+              '53220-10', # Bldg R&M (Exterior)-Lock & Keys
+              '63220-10', # Bldg R&M (Exterior)-Lock & Keys
+              '51110-40', # Cleaning-Repairs&Maintenance
+              '61110-40', # Cleaning-Repairs&Maintenance
+              '53265-10', # Bldg R&M (Exterior)-Window Replacement
+              '63265-10', # Bldg R&M (Exterior)-Window Replacement
+              '63130-10', # Bldg R&M (Interior)-Painting
+              '63110-10', # Bldg R&M (Interior)-Building
+              '63990-20',], # Repairs And Maintenance
     'factor': -1
 },
 {
     'new_col_name': 'OpEx - Office Expenses',
-    'codes': ['1110-40', # Cleaning-Repairs&Maintenance
-              '1110-50', # Cleaning-Supplies&Materials
-              '3120-10', # Bldg R&M (Interior)-Lock & Keys
-              '3160-10', # Bldg R&M (Interior)-Supplies & Materials
-              '3165-10', # Bldg R&M (Interior)-Uniforms
-              '3180-30', # Bldg R&M (Interior)-Generator
-              '4140-10', # Telephone
-              '4820-10', # Supplies & Materials
-              '5310-10', # Accounting/Tax
+    'codes': [
+              '51110-50', # Cleaning-Supplies&Materials
+              '61110-50', # Cleaning-Supplies&Materials
+              '65310-10', # Accounting/Tax
               '95200-15', # OI&E - Appraisal Fee (category 9)
-              '5320-10', # Legal Fees
-              '5330-10', # Other Professional Fees
-              '5405-10', # Meals & Entertainment
-              '5410-20', # Office Employee Parking
-              '5420-10', # Office Furniture/Equipment Rental
-              '5430-10', # Office Supplies
-              '5440-10', # Office Expense
-              '5440-95', # Telecom/Internet
-              '5465-10', # Credit Card Fee
-              '5470-10', # License, Permit, & Fees
-              '5480-10', # Postage/Messengerial
-              '5550-10'], # Training & Seminar
+              '65320-10', # Legal Fees
+              '55330-10', # Other Professional Fees
+              '65330-10', # Other Professional Fees
+              '65405-10', # Meals & Entertainment
+              '65410-20', # Office Employee Parking
+              '55430-10', # Office Supplies
+              '65430-10', # Office Supplies
+              '65440-10', # Office Expense
+              '65440-95', # Telecom/Internet
+              '65465-10', # Credit Card Fee
+              '55470-10', # License, Permit, & Fees
+              '65470-10', # License, Permit, & Fees
+              '65480-10', # Postage/Messengerial
+              '65550-10' # Training & Seminar
+              '65460-10' # Credit Check
+              '52610-20' # Plumbing-Service Contract
+              '62610-20' # Plumbing-Service Contract
+              '52610-50' # Plumbing-Supplies&Materials
+              '62610-50' # Plumbing-Supplies&Materials
+              '63160-10', # Bldg R&M (Interior)-Supplies & Materials
+              '63165-10', # Bldg R&M (Interior)-Uniforms
+              '53180-30', # Bldg R&M (Interior)-Generator
+              '63180-30', # Bldg R&M (Interior)-Generator
+              '54140-10', # Telephone
+              '64140-10', # Telephone
+              '54820-10', # Supplies & Materials
+              '64820-10', # Supplies & Materials
+
+              '65420-10', # Office Furniture/Equipment Rental
+              ], 
     'factor': -1
 },
 {
     'new_col_name': 'OpEx - Utilities',
-    'codes': ['4110-10', # Electricity
-              '4120-10', # Gas
-              '4130-10'], # Water/Sewer
+    'codes': ['54110-10', # Electricity
+              '64110-10', # Electricity
+              '54120-10', # Gas
+              '64120-10', # Gas
+              '54130-10', # Water/Sewer
+              '64130-10'], # Water/Sewer
     'factor': -1
 },
 {
     'new_col_name': 'OpEx - Others',
-    'codes': ['1400-10', # Miscellaneous - Covid19
-              '5050-30', # Non Creditable Vat
-              '5060-10', # Late Fees
-              '5610-10', # Travel - General (Employee Expenses)
-              '5630-10', # Auto Expense, Parking & Mileage
-              '5630-11', # Non-Deductible Reimbursements
-              '8260-10', # Tenant Activity/Relations
-              '8290-10', # Tenant Subsidy
-              '8230-11', # Meals & Enternainment from General Leasing Expense
+    'codes': ['61400-10', # Miscellaneous - Covid19
+              '65050-30', # Non Creditable Vat
+              '65060-10', # Late Fees
+              '65610-10', # Travel - General (Employee Expenses)
+              '65630-10', # Auto Expense, Parking & Mileage
+              '65630-11', # Non-Deductible Reimbursements
+              '68220-10', # Advertising & Promo
+              '68260-10', # Tenant Activity/Relations
+              '68290-10', # Tenant Subsidy
+              '68230-11', # Meals & Enternainment from General Leasing Expense
               '70110-10', # C&GE - Legal Services (category 7)
               '93110-10'], # OI&E - Bank Charges (category 9)
     'subtract_codes': ['91010-10', # OI&E - Interest Income-Investment (category 9) (negative in model)
@@ -189,7 +222,7 @@ column_definitions = [
 },
 {
     'new_col_name': 'OpEx - Property Management Fee',
-    'codes': ['5215-10'], # Property Mgmnt Fee-3Rd Party
+    'codes': ['65215-10'], # Property Mgmnt Fee-3Rd Party
     'factor': -1
 },
 {
@@ -202,39 +235,17 @@ column_definitions = [
 },
 {
     'new_col_name': 'SG&A - Real Estate Taxes',
-    'codes': ['7110-10'], # Real Estate Taxes
+    'codes': ['67110-10'], # Real Estate Taxes
     'factor': -1
 },
 {
     'new_col_name': 'SG&A - Insurance',
-    'codes': ['7230-10'], # Property Insurance
+    'codes': ['67230-10'], # Property Insurance
     'factor': -1
 },
 {
     'new_col_name': 'SG&A - Leasing Comissions',
-    'codes': [ # REVENUES W/O VAT
-           '43310-10', # REV - Parking Operation Income (category 4, Residential Parking Income)
-           '43330-10', # REV - Parking Base Rent (category 4, Residential Parking Income)
-           '43350-10', # REV - Parking Concession (category 4, Residential Parking Income)
-           '43021-01', # REV - Storage Income (category 4)
-           '41310-10', # REV - Lease Cancelations (category 4, Other Income)
-           '42051-10', # REV - Tenant Work Order (category 4, Other Income)
-           '42480-10', # REV - Miscellaneous Income (category 4, Other Income)
-           '42510-10', # REV - Key Income (category 4, Other Income)
-           '42515-10', # REV - Application Fee (category 4, Other Income)
-           '42560-10', # REV - Tenant Damage Income (category 4, Other Income)
-           '43013-20', # REV - Pet Rent (category 4, Other Income)
-           '43021-02', # REV - Facility Use Fee (category 4, Other Income)
-           # REVENUES W/ VAT
-           # Effective Service Revenues
-           '42030-10', # REV - Cleaning Charges Income (category 4, Effective Service Revenues)
-           # Effective Residential Revenues
-           '41130-10', # REV - Rent - Residential (category 4, Residential Leasing)
-           '41347-10', # REV - Gain/Loss To Lease (category 4, Gain/Loss To Lease)
-           '41350-30', # REV - Rent Vacancy - Residential (category 4, Less: Vacancy Factor)
-           '41320-10', # REV - Rent Concessions (category 4, Less: Concessions)
-           '41347-20', # REV - Loss From Model (category 4, Less: Model Units)
-           '5050-10'], # Bad Debt Expense (Less: Credit Losses)
+    'sum_columns': ['Revenues w/ VAT', 'Revenues w/o VAT'],
     'factor': -0.025
 },
 {
